@@ -1,221 +1,198 @@
 <?php
-/**
- * QR Code Service
- *
- * Generates, stores, and retrieves QR code assets for members.
- *
- * PHP Version: 8.0+
- */
+declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\Member;
-use Endroid\QrCode\Encoding\Encoding;
-use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
-use Endroid\QrCode\QrCode;
-use Endroid\QrCode\RoundBlockSizeMode\RoundBlockSizeModeMargin;
-use Endroid\QrCode\Writer\PngWriter;
-use InvalidArgumentException;
+use App\Config\Database;
+use PDO;
 use RuntimeException;
+use Throwable;
+
+use Endroid\QrCode\Builder\Builder;
+use Endroid\QrCode\Writer\PngWriter;
 
 class QrCodeService
 {
-    /**
-     * Member model instance.
-     *
-     * @var Member
-     */
-    protected Member $memberModel;
+    private PDO $db;
 
-    /**
-     * Constructor.
-     */
+    private string $storagePath;
+
     public function __construct()
     {
-        $this->memberModel = new Member();
+        $database = Database::getInstance();
+        $this->db = $database->getConnection();
+
+        $this->storagePath = dirname(__DIR__, 2) . '/storage/qrcodes';
+
+        if (!is_dir($this->storagePath)) {
+            mkdir($this->storagePath, 0775, true);
+        }
     }
 
     /**
-     * Generate and persist a QR code file for the given member.
-     *
-     * @param string $memberId
-     * @return array<string, mixed>
+     * Generate QR for member and persist reference
      */
-    public function generateForMember(string $memberId): array
-    {
-        $this->assertMemberExists($memberId);
-        $this->assertDependenciesAvailable();
-        $this->ensureStorageDirectoryExists();
+    public function regenerateForMember(
+        string $memberId,
+        bool $includeDataUri = false
+    ): array {
 
-        $contentUrl = $this->buildMemberContentUrl($memberId);
-        $writer = new PngWriter();
-        $qrCode = QrCode::create($contentUrl)
-            ->setEncoding(new Encoding('UTF-8'))
-            ->setErrorCorrectionLevel(new ErrorCorrectionLevelHigh())
-            ->setSize(320)
-            ->setMargin(12)
-            ->setRoundBlockSizeMode(new RoundBlockSizeModeMargin());
+        $member = $this->findMember($memberId);
 
-        $result = $writer->write($qrCode);
-
-        $absolutePath = $this->buildAbsoluteFilePath($memberId);
-        $relativePath = $this->buildRelativeFilePath($memberId);
-
-        $result->saveToFile($absolutePath);
-
-        if (!is_file($absolutePath) || filesize($absolutePath) === 0) {
-            throw new RuntimeException('QR code file was not written to storage');
+        if (!$member) {
+            throw new RuntimeException('Member not found');
         }
 
-        return [
-            'member_id' => $memberId,
-            'qr_code_path' => $relativePath,
-            'qr_code_content_url' => $contentUrl,
-            'qr_code_generated_at' => date('Y-m-d H:i:s'),
-            'mime_type' => $result->getMimeType(),
-            'data_uri' => $result->getDataUri(),
-            'file_size' => filesize($absolutePath),
-        ];
-    }
+        $url = $this->buildMemberUrl($memberId);
 
-    /**
-     * Retrieve QR code metadata for a member.
-     *
-     * @param string $memberId
-     * @param bool $includeDataUri
-     * @return array<string, mixed>
-     */
-    public function getMemberQrCode(string $memberId, bool $includeDataUri = false): array
-    {
-        $member = $this->memberModel->getById($memberId);
+        $pngBinary = $this->generatePngBinary($url);
 
-        if ($member === null) {
-            throw new InvalidArgumentException('Member not found');
-        }
+        $fileName = $memberId . '.png';
 
-        if (empty($member['qr_code_path']) || empty($member['qr_code_content_url'])) {
-            throw new RuntimeException('QR code reference not found for member');
-        }
+        $absoluteFile = $this->storagePath . '/' . $fileName;
 
-        $absolutePath = APP_ROOT . '/' . ltrim($member['qr_code_path'], '/');
+        file_put_contents($absoluteFile, $pngBinary);
 
-        if (!is_file($absolutePath)) {
-            throw new RuntimeException('QR code file not found in storage');
-        }
+        $relativePath = '/storage/qrcodes/' . $fileName;
+
+        $this->persistQrReference($memberId, $relativePath);
 
         $response = [
             'member_id' => $memberId,
-            'content_url' => $member['qr_code_content_url'],
-            'storage_path' => $member['qr_code_path'],
-            'generated_at' => $member['qr_code_generated_at'] ?? null,
-            'mime_type' => 'image/png',
-            'file_size' => filesize($absolutePath),
+            'member_name' => trim(($member['first_name'] ?? '') . ' ' . ($member['last_name'] ?? '')),
+            'qr_url' => $url,
+            'qr_image_path' => $relativePath,
+            'qr_saved' => true,
         ];
 
         if ($includeDataUri) {
-            $contents = file_get_contents($absolutePath);
-            if ($contents === false) {
-                throw new RuntimeException('Unable to read QR code file from storage');
-            }
-
-            $response['data_uri'] = 'data:image/png;base64,' . base64_encode($contents);
+            $response['qr_data_uri'] =
+                'data:image/png;base64,' . base64_encode($pngBinary);
         }
 
         return $response;
     }
 
     /**
-     * Generate and persist a fresh QR code, then return stored metadata.
-     *
-     * @param string $memberId
-     * @param bool $includeDataUri
-     * @return array<string, mixed>
+     * Generate QR binary PNG
      */
-    public function regenerateForMember(string $memberId, bool $includeDataUri = false): array
+    private function generatePngBinary(string $content): string
     {
-        $generated = $this->generateForMember($memberId);
-        $this->memberModel->updateQrReference($memberId, $generated);
+        try {
 
-        return $includeDataUri ? $generated : $this->getMemberQrCode($memberId, false);
-    }
+            $result = Builder::create()
+                ->writer(new PngWriter())
+                ->data($content)
+                ->size(320)
+                ->margin(12)
+                ->build();
 
-    /**
-     * Validate required QR dependencies.
-     *
-     * @return void
-     */
-    protected function assertDependenciesAvailable(): void
-    {
-        if (!extension_loaded('gd')) {
-            throw new RuntimeException('GD extension is required for PNG QR generation');
-        }
+            return $result->getString();
 
-        if (!class_exists('BaconQrCode\\Encoder\\Encoder')) {
+        } catch (Throwable $e) {
             throw new RuntimeException(
-                'Missing dependency: bacon/bacon-qr-code. Install it under /vendor/bacon/bacon-qr-code to enable QR generation'
+                'QR generation failed: ' . $e->getMessage()
             );
         }
     }
 
     /**
-     * Ensure the QR storage directory exists and is writable.
-     *
-     * @return void
+     * Build member profile URL
      */
-    protected function ensureStorageDirectoryExists(): void
+    private function buildMemberUrl(string $memberId): string
     {
-        if (!is_dir(QR_CODE_STORAGE_PATH) && !mkdir(QR_CODE_STORAGE_PATH, 0755, true) && !is_dir(QR_CODE_STORAGE_PATH)) {
-            throw new RuntimeException('Unable to create QR code storage directory');
+        return 'https://qrrest.technolide.xyz/v1/member/' . $memberId;
+    }
+
+    /**
+     * Read member
+     */
+    private function findMember(string $memberId): ?array
+    {
+        $sql = "
+            SELECT id, first_name, last_name
+            FROM members
+            WHERE id = :id
+            LIMIT 1
+        ";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
+            ':id' => $memberId
+        ]);
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row ?: null;
+    }
+
+    /**
+     * Save QR path into members table
+     */
+    private function persistQrReference(
+        string $memberId,
+        string $path
+    ): void {
+
+        $hasQrImage = $this->columnExists('members', 'qr_image');
+
+        if ($hasQrImage) {
+
+            $sql = "
+                UPDATE members
+                SET qr_image = :qr_image
+                WHERE id = :id
+            ";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->execute([
+                ':qr_image' => $path,
+                ':id' => $memberId
+            ]);
+
+            return;
         }
 
-        if (!is_writable(QR_CODE_STORAGE_PATH)) {
-            throw new RuntimeException('QR code storage directory is not writable');
+        $hasQrCode = $this->columnExists('members', 'qr_code');
+
+        if ($hasQrCode) {
+
+            $sql = "
+                UPDATE members
+                SET qr_code = :qr_code
+                WHERE id = :id
+            ";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->execute([
+                ':qr_code' => $path,
+                ':id' => $memberId
+            ]);
         }
     }
 
     /**
-     * Ensure the target member exists.
-     *
-     * @param string $memberId
-     * @return void
+     * Check schema safely
      */
-    protected function assertMemberExists(string $memberId): void
-    {
-        if (!$this->memberModel->exists($memberId)) {
-            throw new InvalidArgumentException('Member not found');
-        }
-    }
+    private function columnExists(
+        string $table,
+        string $column
+    ): bool {
 
-    /**
-     * Build the QR content URL encoded into the QR image.
-     *
-     * @param string $memberId
-     * @return string
-     */
-    protected function buildMemberContentUrl(string $memberId): string
-    {
-        return APP_URL . '/member/' . rawurlencode($memberId);
-    }
+        $sql = "
+            SHOW COLUMNS
+            FROM {$table}
+            LIKE :column
+        ";
 
-    /**
-     * Build absolute storage file path.
-     *
-     * @param string $memberId
-     * @return string
-     */
-    protected function buildAbsoluteFilePath(string $memberId): string
-    {
-        return QR_CODE_STORAGE_PATH . '/member-' . $memberId . '.png';
-    }
+        $stmt = $this->db->prepare($sql);
 
-    /**
-     * Build storage path relative to the project root.
-     *
-     * @param string $memberId
-     * @return string
-     */
-    protected function buildRelativeFilePath(string $memberId): string
-    {
-        return 'storage/qrcodes/member-' . $memberId . '.png';
+        $stmt->execute([
+            ':column' => $column
+        ]);
+
+        return (bool) $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }
