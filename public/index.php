@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * QR-Based School Alumnus API - Entry Point
  * 
@@ -9,8 +11,6 @@
  * Author: Development Team
  * Date: 2025
  */
-
-require_once __DIR__ . '/vendor/endroid-qrcode/src/DASPRiD/Enum.php';
 
 // Enable error reporting for development (disable in production)
 error_reporting(E_ALL);
@@ -25,12 +25,34 @@ define('API_HOST', 'qrrest.technolide.xyz');
 define('STORAGE_PATH', APP_ROOT . '/storage');
 define('QR_CODE_STORAGE_PATH', STORAGE_PATH . '/qrcodes');
 define('APP_URL', 'https://' . API_HOST . BASE_URL);
+define('CONFIG_PATH', APP_ROOT . '/config');
 
 // Set content type header
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
+
+
+/*
+|--------------------------------------------------------------------------
+| Some older Endroid builds need Enum base directly
+|--------------------------------------------------------------------------
+*/
+$enumBase = APP_ROOT . '/vendor/endroid-qrcode/src/DASPRiD/Enum.php';
+
+if (file_exists($enumBase)) {
+    require_once $enumBase;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Ensure Storage Exists
+|--------------------------------------------------------------------------
+*/
+if (!is_dir(QR_CODE_STORAGE_PATH)) {
+    mkdir(QR_CODE_STORAGE_PATH, 0775, true);
+}
 
 // Handle preflight requests
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -213,6 +235,11 @@ function handleMemberRequest($method, $id = null)
  */
 function handleQrCodeRequest($method, $resourceType = null, array $segments = []): void
 {
+
+    require_once SRC_PATH . '/Services/QrCodeService.php';
+    $service = new \App\Services\QrCodeService();
+    $action = $segments[1] ?? 'index';
+
     require_once SRC_PATH . '/Config/Database.php';
     require_once SRC_PATH . '/Controllers/QrCodeController.php';
 
