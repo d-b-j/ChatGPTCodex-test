@@ -72,7 +72,7 @@ class MemberService
         $id = $this->memberModel->create($memberData);
 
         try {
-            // $qrReference = $this->qrCodeService->generateForMember($id);
+            $qrReference = $this->qrCodeService->generateForMember($id);
             $this->memberModel->updateQrReference($id, $qrReference);
         } catch (RuntimeException $exception) {
             $this->memberModel->delete($id);
