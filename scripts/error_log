@@ -1,0 +1,6 @@
+[26-Apr-2026 06:33:12 UTC] PHP Warning:  Undefined variable $argv in /home/technoli/qrrest.technolide.xyz/scripts/manual_qrcode_test.php on line 71
+[26-Apr-2026 06:33:12 UTC] PHP Fatal error:  Uncaught TypeError: in_array(): Argument #2 ($haystack) must be of type array, null given in /home/technoli/qrrest.technolide.xyz/scripts/manual_qrcode_test.php:71
+Stack trace:
+#0 /home/technoli/qrrest.technolide.xyz/scripts/manual_qrcode_test.php(71): in_array()
+#1 {main}
+  thrown in /home/technoli/qrrest.technolide.xyz/scripts/manual_qrcode_test.php on line 71

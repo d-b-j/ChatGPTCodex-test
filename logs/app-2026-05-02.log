@@ -1,0 +1,1 @@
+[2026-05-02 10:15:50] ERROR: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'technoli_ssck_oba_qr.member_attachments' doesn't exist | {"exception":{"errorInfo":["42S02",1146,"Table 'technoli_ssck_oba_qr.member_attachments' doesn't exist"]}}
