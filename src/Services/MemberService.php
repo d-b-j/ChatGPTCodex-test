@@ -261,6 +261,18 @@ class MemberService
     }
 
 
+
+    public function saveNewContribution(array $data): array
+    {
+        $status = $this->memberModel->insertContribution($data);
+        return [
+            'success' => $status > 0 ? true : false,
+            'status' => $status,
+            'data' => $data
+        ];
+    }
+
+
     public function attachments(string $memberId): array
     {
         return $this->memberModel->getAttachments($memberId);
@@ -295,16 +307,27 @@ class MemberService
             return false;
         }
 
-        $dir = dirname(__DIR__,2)
-            . '/storage/uploads/member_attachments/'.$meta['field_key'].'/'.$memberId.'/';
+        $stored = preg_replace('/[^a-zA-Z0-9._-]/', '_', $name);
+        $stored = time() . '_' . $stored;        
+
+        $dir = dirname(__DIR__,2) . '/storage/'.date('Y').'/uploads/field_attachments/'.$memberId.'/';
+        $filepath = 'storage/'.date('Y').'/uploads/field_attachments/'.$memberId.'/';
+            if( !empty($meta['category']) ){
+                $dir = $dir . $meta['category'] .'/';
+                $filepath = $filepath . $meta['category'] .'/';
+            }
+            if( !empty($meta['field_key']) ){
+                $dir = $dir . $meta['field_key'] .'/';
+                $filepath = $filepath . $meta['field_key'] .'/';
+            }
+            if( !empty($meta['context_ref']) ){
+                $dir = $dir . $meta['context_ref'] .'/';
+                $filepath = $filepath . $meta['context_ref'] .'/';
+            }
 
         if (!is_dir($dir)) {
             mkdir($dir, 0775, true);
         }
-
-        $stored =
-            time() . '_' .
-            preg_replace('/[^a-zA-Z0-9._-]/', '_', $file['name']);
 
         $target = $dir . $stored;
 
@@ -318,7 +341,7 @@ class MemberService
             'context_ref'   => $meta['context_ref'],
             'original_name' => $file['name'],
             'stored_name'   => $stored,
-            'file_path'     => 'storage/uploads/member_attachments/' . $stored,
+            'file_path'     => $filepath . $stored,
             'mime_type'     => (new finfo(FILEINFO_MIME_TYPE))->file($target),
             'file_size'     => $file['size'],
             'uploaded_by'   => 'self'
@@ -328,7 +351,7 @@ class MemberService
 
 
 
-    public function saveAttachments(
+    public function saveMultipleAttachments(
         string $memberId,
         array $files,
         array $meta
@@ -346,12 +369,30 @@ class MemberService
 
             $name = $files['name'][$i];
 
-            $stored =
-                time() . "_$i_" .
-                preg_replace('/[^a-zA-Z0-9._-]/', '_', $name);
+            $changeName = time() .'_' . $i . "_";
+            $stored = preg_replace('/[^a-zA-Z0-9._-]/', '_', $name);
+            $stored = $changeName . $stored;
 
-            $dir = dirname(__DIR__,2)
-                . '/storage/uploads/member_attachments/';
+            $dir = dirname(__DIR__,2) . '/storage/'.date('Y').'/uploads/field_attachments/'.$memberId.'/';
+            $filepath = 'storage/'.date('Y').'/uploads/field_attachments/'.$memberId.'/';
+                if( !empty($meta['category']) ){
+                    $dir = $dir . $meta['category'] .'/';
+                    $filepath = $filepath . $meta['category'] .'/';
+                }
+                if( !empty($meta['field_key']) ){
+                    $dir = $dir . $meta['field_key'] .'/';
+                    $filepath = $filepath . $meta['field_key'] .'/';
+                }
+                if( !empty($meta['context_ref']) ){
+                    $dir = $dir . $meta['context_ref'] .'/';
+                    $filepath = $filepath . $meta['context_ref'] .'/';
+                }
+                // $dir = $dir .$i.'/';
+                // $filepath = $filepath . $i.'/';
+
+            if (!is_dir($dir)) {
+                mkdir($dir, 0775, true);
+            }
 
             $target = $dir . $stored;
 
@@ -362,13 +403,13 @@ class MemberService
 
             $row = [
                 'member_id'     => $memberId,
-                'field_key'     => $meta['field_key'][$i],
-                'field_label'   => $meta['field_label'][$i],
-                'category'      => $meta['category'][$i],
-                'context_ref'   => $meta['context_ref'][$i],
+                'field_key'     => $meta['field_key'],
+                'field_label'   => $meta['field_label'],
+                'category'      => $meta['category'],
+                'context_ref'   => $meta['context_ref'],
                 'original_name' => $name,
                 'stored_name'   => $stored,
-                'file_path'     => 'storage/uploads/member_attachments/' . $stored,
+                'file_path'     => $filepath . $stored,
                 'mime_type'     => mime_content_type($target),
                 'file_size'     => $files['size'][$i],
                 'uploaded_by'   => 'self'

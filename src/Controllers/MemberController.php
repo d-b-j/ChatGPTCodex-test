@@ -171,11 +171,11 @@ class MemberController
                             $memberId, 
                             $fileData, 
                             [
-                                'type' => 'membership-bankslip',
+                                'type' => 'attachment',
                                 'field_key'     => $field_key,
                                 'field_label'   => 'Membership Fee Payment - ' . date('Y'),
-                                'category'      => 'payment-records',
-                                'context_ref'   => $memberId                
+                                'category'      => 'member-fee-payment-records',
+                                'context_ref'   => date('Y')               
                             ]
                         );
     //             }
@@ -501,6 +501,77 @@ class MemberController
             'success' => $ok
         ]);
     }
+
+    public function createContribution (): void
+    {   
+        try {
+            $memberId = null;
+            $contributionId = null;
+            $field_key = null;
+            if( isset($_POST['member_id']) ){
+                $memberId = $_POST['member_id'];
+            }
+
+            if( isset($_POST['contribution_id']) ){
+                $contributionId = $_POST['contribution_id'];
+            }
+
+            if( isset($_POST['field_key']) ){
+                $field_key = $_POST['field_key'];
+            }
+
+            $fileupload = []; 
+                if (FILES_INBOUND != null) {
+                    $files = FILES_INBOUND;
+                    foreach ($files as $inputName => $fileData) { 
+                            $fileupload = $this->memberService->saveMultipleAttachments(
+                                                                                            $memberId, 
+                                                                                            $files['attachments'], 
+                                                                                            [
+                                                                                                'type' => 'attachment',
+                                                                                                'contribution_id' => $contributionId,
+                                                                                                'field_key'     => $field_key,
+                                                                                                'field_label'   => $memberId . ' - '. 'supporting documents for contribution - ' . $contributionId,
+                                                                                                'category'      => 'contributions',
+                                                                                                'context_ref'   => $contributionId
+                                                                                            ]
+                                                                                        );
+                    }
+                }
+
+            $contributionInfo = [
+                'member_id' => $memberId,
+                'field_id' => $memberId . '_' . $contributionId,
+                'title' => $_POST['title'] ?? '',
+                'amount' => $_POST['amount'] ?? 0,
+                'description' => $_POST['description'] ?? '',
+                'support_documents' => count($fileupload) 
+            ];
+
+            if( $fileupload == null ){
+                    Response::error('server side file copying failed.', 400);
+            }
+
+            $result = $this->memberService->saveNewContribution($contributionInfo);
+            Response::success(
+                [
+                    'member_id' => $memberId,
+                    'contribution' => $result,
+                    'file_upload' => $fileupload
+                ],
+                'Contribution created successfully',
+                201
+            ); 
+
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode([
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+
 
 
 ///////////// FILE UPLOAD

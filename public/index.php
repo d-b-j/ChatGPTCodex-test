@@ -240,6 +240,8 @@ function handleMemberRequest($method, $id = null)
                                 /// nothing
                                 break;
                         }
+                } elseif ( strpos( URL_PATH , '/v1/member/contribution') !== false ) {
+                    $controller->createContribution();
                 } else {
                     $controller->create();
                 }

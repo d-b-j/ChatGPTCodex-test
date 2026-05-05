@@ -511,6 +511,52 @@ class Member
     }
 
 
+    /**
+     * save new contribution
+     */
+    public function insertContribution(array $data): int
+    {
+        $sql = "
+            INSERT INTO member_contributions
+            (
+                member_id, 
+                field_id, 
+                title, 
+                amount, 
+                description, 
+                support_documents
+            )
+            VALUES
+            (
+                :member_id,
+                :field_id,
+                :title,
+                :amount,
+                :description,
+                :support_documents
+            )
+        ";
+        $stmt = $this->db->prepare($sql);
 
+
+        $outcome = 0;
+        $outcome = $stmt->execute([
+            ':member_id' => $data['member_id'],
+            ':field_id' => $data['field_id'] ?? null,
+            ':title' => $data['title'],
+            ':amount' => $data['amount'],
+            ':description' => $data['description'] ?? null,
+            ':support_documents' => $data['support_documents'] ?? null,
+        ]);
+        
+        if (!$outcome) {
+            throw new \Exception('Failed to save contribution record');
+        }
+
+        return $outcome;
+
+        // return $this->db->lastInsertId();
+       
+    }
 
 }
