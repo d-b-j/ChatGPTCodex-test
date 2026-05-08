@@ -571,7 +571,31 @@ class MemberController
         }
     }
 
+    public function paymentStatus(string $memberId): void
+    {
+        try {
 
+            $service = new \App\Services\MemberService();
+
+            $result = $service->getMemberPaymentStatus($memberId);
+
+            \App\Helpers\Response::success(
+                $result,
+                'Payment status retrieved successfully'
+            );
+
+        } catch (\Exception $e) {
+
+            \App\Helpers\Logger::error($e->getMessage(), [
+                'exception' => $e
+            ]);
+
+            \App\Helpers\Response::error(
+                $e->getMessage(),
+                500
+            );
+        }
+    }
 
 
 ///////////// FILE UPLOAD

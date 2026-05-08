@@ -559,4 +559,46 @@ class Member
        
     }
 
+    public function getMemberPaymentStatus(string $memberId): array
+    {
+        $currentYear = date('Y');
+
+        $sql = "
+            SELECT * 
+            FROM member_attachments
+            WHERE member_id = :member_id
+            AND field_key = 'member-fee-payment-record'
+            AND context_ref = :context_ref
+            ORDER BY created_at DESC
+            LIMIT 1
+        ";
+
+        $stmt = $this->db->prepare($sql);
+
+        $stmt->execute([
+            ':member_id' => $memberId,
+            ':context_ref' => $currentYear
+        ]);
+
+        $payment = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if (!$payment) {
+
+            return [
+                'paid' => false,
+                'year' => $currentYear,
+                'payment_date' => null,
+                'payment_record' => null
+            ];
+        }
+
+        return [
+            'paid' => true,
+            'year' => $currentYear,
+            'payment_date' => $payment['created_at'],
+            'payment_record' => $payment
+        ];
+    }    
+
+
 }

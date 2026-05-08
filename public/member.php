@@ -192,6 +192,21 @@ if (empty($memberId)) {
             </div>
 
         </div>
+
+<div class="info-card">
+    <div class="info-label">
+        Annual Membership Fee
+    </div>
+
+    <div class="info-value" id="payment-status">
+        Checking...
+    </div>
+
+    <div id="payment-date"
+         style="margin-top:8px;font-size:12px;color:#666;">
+    </div>
+</div> 
+
     </div>
 </div>
 
@@ -259,6 +274,8 @@ async function loadMemberProfile() {
         document.getElementById('created-at').innerText =
             data.created_at || '-';
 
+        loadPaymentStatus(memberId);
+
         if (data.profile_photo) {
             document.getElementById('profile-photo').src =
                 data.profile_photo;
@@ -278,6 +295,62 @@ async function loadMemberProfile() {
         `;
 
         console.error(error);
+    }
+}
+
+
+async function loadPaymentStatus(memberId)
+{
+    try {
+
+        const response = await fetch(
+            `/v1/member/${memberId}/payment-status`
+        );
+
+        if (!response.ok) {
+            throw new Error('Unable to verify payment');
+        }
+
+        const result = await response.json();
+
+        if (!result.success) {
+            throw new Error(result.message || 'Payment check failed');
+        }
+
+        const payment = result.data;
+
+        const paymentStatusElement =
+            document.getElementById('payment-status');
+
+        const paymentDateElement =
+            document.getElementById('payment-date');
+
+        if (payment.paid) {
+
+            paymentStatusElement.innerHTML =
+                'PAID';
+
+            paymentDateElement.innerHTML =
+                `Verified on: ${payment.payment_date}`;
+
+        } else {
+
+            paymentStatusElement.innerHTML =
+                'NOT PAID';
+
+            paymentDateElement.innerHTML =
+                `No payment record for ${payment.year}`;
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+        document.getElementById('payment-status').innerHTML =
+            'Unable to verify';
+
+        document.getElementById('payment-date').innerHTML =
+            error.message;
     }
 }
 

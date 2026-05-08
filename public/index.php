@@ -165,11 +165,12 @@ function routeRequest($method, $path)
     $resource = array_shift($segments);
 
     $id = !empty($segments) ? array_shift($segments) : null;
+    $action = !empty($segments) ? array_shift($segments) : null;
 
     // Route based on resource
     switch ($resource) {
         case 'member':
-            handleMemberRequest($method, $id);
+            handleMemberRequest($method, $id, $action);
             break;
         
         case 'health':
@@ -208,7 +209,7 @@ function routeRequest($method, $path)
  * @param string|null $id Member ID
  * @return void
  */
-function handleMemberRequest($method, $id = null)
+function handleMemberRequest($method, $id = null, $action = null)
 {
     // Include necessary files
     require_once SRC_PATH . '/Config/Database.php';
@@ -265,6 +266,17 @@ function handleMemberRequest($method, $id = null)
                     \App\Helpers\Response::error('Member ID is required', 400);
                     return;
                 }
+
+                /*
+                |--------------------------------------------------------------------------
+                | GET /v1/member/{id}/payment-status
+                |--------------------------------------------------------------------------
+                */
+                if ($action === 'payment-status') {
+                    $controller->paymentStatus($id);
+                    return;
+                }
+
                 $controller->retrieve($id);
                 break;
 

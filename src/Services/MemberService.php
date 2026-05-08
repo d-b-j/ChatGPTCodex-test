@@ -422,6 +422,12 @@ class MemberService
 
         return $saved;
     }
+
+    public function getMemberPaymentStatus(string $memberId): array
+    {
+        return $this->memberModel->getMemberPaymentStatus($memberId);
+    }
+
 }
 
 
