@@ -124,6 +124,19 @@ try {
     }
 
     $method = $_SERVER['REQUEST_METHOD'];
+
+    /*
+    |--------------------------------------------------------------------------
+    | Frontend Member Profile Page
+    |--------------------------------------------------------------------------
+    | Example:
+    | /member?member_id=63de1cc9-4a3d
+    */
+    if ($path === '/member') {
+        require __DIR__ . '/member.php';
+        exit;
+    }
+
     // Route the request
     routeRequest($method, $path);
 
