@@ -1,119 +1,57 @@
 <?php
-$memberId = $_GET['id'] ?? '';
 
+$memberId = $_GET['id'] ?? '';
 if (empty($memberId)) {
     die("Invalid member ID");
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
     <title>Member Profile</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/assets/css/theme.css" rel="stylesheet"/>
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Bootstrap Icons -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+    <!-- Theme -->
+    <link
+        href="/assets/css/theme.css"
+        rel="stylesheet"
+    >
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .profile-container {
-            max-width: 1000px;
-            margin: auto;
-            background: #fff;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-        }
-
-        .profile-header {
-            display: flex;
-            gap: 30px;
-            align-items: center;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 20px;
-            margin-bottom: 20px;
-        }
-
-        .profile-photo {
-            width: 140px;
-            height: 140px;
-            border-radius: 50%;
-            overflow: hidden;
-            background: #eee;
-        }
-
-        .profile-photo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .member-name {
-            font-size: 30px;
-            font-weight: bold;
-        }
-
-        .member-status {
-            margin-top: 10px;
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 5px;
-            background: #ddd;
-        }
-
-        .profile-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
-            gap: 20px;
-        }
-
-        .info-card {
-            background: #fafafa;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            padding: 15px;
-        }
-
-        .info-label {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 5px;
-        }
-
-        .info-value {
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        .error-box {
-            background: #ffe5e5;
-            color: #a00000;
-            padding: 15px;
-            border-radius: 8px;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 50px;
-        }
-
-        :root {
-
-            --primary-bg: #95150F;
-            --secondary-bg: #6F100B;
-            --light-bg: #F6A6A2;
-
-            --white: #ffffff;
-            --dark-text: #2b2b2b;
-        }
 
         body {
+
+            background:
+                #f4f6f9;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Top Navigation
+        |--------------------------------------------------------------------------
+        */
+        .topbar {
+
+            height: 72px;
 
             background:
                 linear-gradient(
@@ -122,786 +60,968 @@ if (empty($memberId)) {
                     var(--secondary-bg)
                 );
 
-            min-height: 100vh;
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 0 28px;
+
+            color: white;
+
+            box-shadow:
+                0 4px 14px rgba(0,0,0,0.08);
+        }
+
+        .brand {
+
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-logo {
+
+            width: 44px;
+            height: 44px;
+
+            border-radius: 12px;
+
+            background:
+                rgba(255,255,255,0.12);
 
             display: flex;
             align-items: center;
             justify-content: center;
 
-            padding: 20px;
-
-            font-family:
-                Inter,
-                Arial,
-                sans-serif;
-        }
-
-.light-bg {
-background-color: #F2E2BA; 
-}
-
-.primary-bg {
-background-color: #95150F; 
-}
-
-
-
-       
-
-        .portal-wrapper {
-
-            width: 100%;
-            max-width: 1100px;
-
-            background: var(--white);
-
-            border-radius: 20px;
-
-            overflow: hidden;
-
-            box-shadow:
-                0 10px 40px rgba(0,0,0,0.25);
-        }
-
-        .left-panel {
-
-            background:
-                linear-gradient(
-                    180deg,
-                    var(--primary-bg),
-                    var(--secondary-bg)
-                );
-
-            color: var(--white);
-
-            padding: 60px;
-
-            height: 100%;
+            font-size: 22px;
         }
 
         .brand-title {
 
-            font-size: 42px;
+            font-size: 20px;
             font-weight: 700;
-            line-height: 1.2;
         }
 
         .brand-subtitle {
 
-            margin-top: 20px;
+            font-size: 12px;
 
-            font-size: 18px;
-
-            opacity: 0.9;
+            opacity: 0.8;
         }
 
-        .feature-list {
+        /*
+        |--------------------------------------------------------------------------
+        | Main Layout
+        |--------------------------------------------------------------------------
+        */
+        .app-layout {
 
-            margin-top: 40px;
+            padding: 28px;
         }
 
-        .feature-item {
+        .profile-sidebar {
 
-            margin-bottom: 16px;
+            background: white;
 
-            padding-left: 28px;
+            border-radius: 24px;
 
-            position: relative;
-        }
-
-        .feature-item::before {
-
-            content: "•";
-
-            position: absolute;
-
-            left: 0;
-
-            font-size: 22px;
-        }
-
-        .right-panel {
-
-            padding: 60px;
-            background: #fff;
-        }
-
-        .login-title {
-
-            font-size: 34px;
-            font-weight: 700;
-
-            color: var(--primary-bg);
-        }
-
-        .login-subtitle {
-
-            margin-top: 10px;
-
-            color: #666;
-        }
-
-        .form-control {
-
-            border-radius: 12px;
-
-            padding: 14px;
-
-            border: 1px solid #ddd;
-        }
-
-        .form-control:focus {
-
-            border-color: var(--primary-bg);
+            overflow: hidden;
 
             box-shadow:
-                0 0 0 0.2rem rgba(149,21,15,0.15);
+                0 8px 24px rgba(0,0,0,0.05);
         }
 
-        .btn-login {
+        .profile-cover {
 
-            background: var(--primary-bg);
+            height: 120px;
 
-            color: var(--white);
-
-            border: none;
-
-            border-radius: 12px;
-
-            padding: 14px;
-
-            font-weight: 600;
-
-            transition: 0.2s;
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--primary-bg),
+                    var(--secondary-bg)
+                );
         }
 
-        .btn-login:hover {
+        .profile-body {
 
-            background: var(--secondary-bg);
+            padding: 0 28px 28px;
+            text-align: center;
         }
 
-        .quick-links {
+        .profile-photo {
 
-            margin-top: 30px;
+            width: 130px;
+            height: 130px;
+
+            border-radius: 50%;
+
+            object-fit: cover;
+
+            border: 6px solid white;
+
+            margin-top: -65px;
+
+            background: #f0f0f0;
         }
 
-        .quick-links a {
+        .member-name {
 
-            color: var(--primary-bg);
+            font-size: 28px;
+            font-weight: 700;
 
-            text-decoration: none;
-
-            font-weight: 500;
+            margin-top: 18px;
         }
 
-        .quick-links a:hover {
+        .member-number {
 
-            text-decoration: underline;
+            color: #777;
+
+            margin-top: 6px;
         }
 
-        .footer-text {
-
-            margin-top: 30px;
-
-            font-size: 13px;
-
-            color: #888;
-        }
-
-        .school-badge {
+        .member-status {
 
             display: inline-block;
 
-            background: rgba(255,255,255,0.1);
+            margin-top: 18px;
 
-            padding: 10px 16px;
+            padding: 10px 18px;
 
             border-radius: 999px;
 
-            margin-bottom: 25px;
+            font-size: 13px;
+            font-weight: 700;
+
+            background:
+                #fff3f2;
+
+            color:
+                var(--primary-bg);
+        }
+
+        .profile-actions {
+
+            margin-top: 28px;
+
+            display: grid;
+
+            gap: 12px;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Dashboard Panels
+        |--------------------------------------------------------------------------
+        */
+        .dashboard-panel {
+
+            background: white;
+
+            border-radius: 24px;
+
+            padding: 28px;
+
+            box-shadow:
+                0 8px 24px rgba(0,0,0,0.05);
+
+            margin-bottom: 24px;
+        }
+
+        .panel-title {
+
+            font-size: 20px;
+            font-weight: 700;
+
+            margin-bottom: 24px;
+
+            color:
+                var(--primary-bg);
+
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Info Grid
+        |--------------------------------------------------------------------------
+        */
+        .info-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(auto-fit, minmax(220px, 1fr));
+
+            gap: 18px;
+        }
+
+        .info-box {
+
+            background:
+                #fafafa;
+
+            border:
+                1px solid #ececec;
+
+            border-radius: 18px;
+
+            padding: 18px;
+        }
+
+        .info-label {
+
+            font-size: 12px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.5px;
+
+            color: #888;
+
+            margin-bottom: 10px;
+        }
+
+        .info-value {
+
+            font-size: 17px;
+            font-weight: 600;
+
+            color: #222;
+
+            word-break: break-word;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Payment Card
+        |--------------------------------------------------------------------------
+        */
+        .payment-card {
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #fff,
+                    #fff7f6
+                );
+        }
+
+        .payment-status {
+
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Contributions
+        |--------------------------------------------------------------------------
+        */
+        .contribution-card {
+
+            border:
+                1px solid #ececec;
+
+            border-radius: 18px;
+
+            padding: 20px;
+
+            margin-bottom: 16px;
+
+            transition: 0.2s;
+
+            background: white;
+        }
+
+        .contribution-card:hover {
+
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 6px 20px rgba(0,0,0,0.05);
+        }
+
+        .contribution-title {
+
+            font-size: 19px;
+            font-weight: 700;
+        }
+
+        .contribution-amount {
+
+            font-size: 22px;
+            font-weight: 800;
+
+            color:
+                var(--primary-bg);
+        }
+
+        .attachment-item {
+
+            margin-top: 10px;
+        }
+
+        .attachment-link {
+
+            text-decoration: none;
 
             font-size: 14px;
         }
 
-        @media(max-width: 768px) {
+        /*
+        |--------------------------------------------------------------------------
+        | Loading
+        |--------------------------------------------------------------------------
+        */
+        .loading-state {
 
-            .left-panel,
-            .right-panel {
+            padding: 100px 20px;
 
-                padding: 35px;
+            text-align: center;
+
+            color: #777;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Responsive
+        |--------------------------------------------------------------------------
+        */
+        @media(max-width: 992px) {
+
+            .app-layout {
+
+                padding: 18px;
             }
 
-            .brand-title {
+            .dashboard-panel {
 
-                font-size: 32px;
+                padding: 22px;
             }
-        } 
-
-
+        }
 
     </style>
+
 </head>
 <body>
 
-<div class="container">
+<!-- TOPBAR -->
+<div class="topbar">
 
-<!-- <div class="page-container"> -->
+    <div class="brand">
 
-        
-<div class="page-header">
-    <div class="">
-        <img src="/assets/images/ssckpca.png" alt="Logo" class="img-fluid" style="height:50px;">
-    </div>    
-    <div>
-        <div class="page-title">
-        Member Info Card
-        </div>
-    </div>
-</div>
-
-<div class="page-content light-bg">
-                
-    <div class="profile-grid">
-
-                    <div class="info-card">
-                        <div class="member-name" id="member-name"></div>
-                        <div class="member-status" id="member-status"></div>
-                        <div style="margin-top:10px;">
-                            Member No:
-                            <strong id="member-no"></strong>
-                        </div>
-                    </div>
-
-                    <div class="info-card">
-                        <div class="info-label">Email</div>
-                        <div class="info-value" id="email"></div>
-                    </div>
-
-                    <div class="info-card">
-                        <div class="info-label">Phone</div>
-                        <div class="info-value" id="phone"></div>
-                    </div>
-
-                    <div class="info-card">
-                        <div class="info-label">NIC</div>
-                        <div class="info-value" id="nic"></div>
-                    </div>
-
-                    <div class="info-card">
-                        <div class="info-label">Birthday</div>
-                        <div class="info-value" id="birthday"></div>
-                    </div>
-
-                    <div class="info-card">
-                        <div class="info-label">Gender</div>
-                        <div class="info-value" id="gender"></div>
-                    </div>
-
-                    <div class="info-card">
-                        <div class="info-label">Address</div>
-                        <div class="info-value" id="address"></div>
-                    </div>
-
-                    <div class="info-card">
-                        <div class="info-label">Batch Year</div>
-                        <div class="info-value" id="batch-year"></div>
-                    </div>
-
-                    <div class="info-card">
-                        <div class="info-label">AL Batch Year</div>
-                        <div class="info-value" id="al-batch-year"></div>
-                    </div>
-
-                    <div class="info-card">
-                        <div class="info-label">Membership Year</div>
-                        <div class="info-value" id="membership-year"></div>
-                    </div>
-
-                    <div class="info-card">
-                        <div class="info-label">Cricket Years</div>
-                        <div class="info-value" id="cricket-years"></div>
-                    </div>
-
-                    <div class="info-card">
-                        <div class="info-label">Created At</div>
-                        <div class="info-value" id="created-at"></div>
-                    </div>
-
-                </div>
-
-                <div class="info-card">
-                    <div class="info-label">
-                        Annual Membership Fee
-                    </div>
-
-                    <div class="info-value" id="payment-status">
-                        Checking...
-                    </div>
-
-                    <div id="payment-date"
-                        style="margin-top:8px;font-size:12px;color:#666;">
-                    </div>
-
-                    <button
-                        id="view-payment-receipt-btn"
-                        class="btn btn-secondary"
-                        style="
-                            display:none;
-                            margin-top:12px;
-                            padding:8px 14px;
-                            cursor:pointer;
-                        ">
-                        View Receipt
-                    </button>
-                </div> 
-
-                <div class="info-card">
-                        <div class="col-5">
-                        <button type="button" class="btn btn-secondary w-100 py-2 mt-2" onclick="window.location.href='member-contributions-form.php?id=<?php echo htmlspecialchars($memberId); ?>'">
-                        Contributions
-                        </button>
-                        </div>
-
-                        <div class="col-5">
-                        <button type="button" class="btn btn-secondary w-100 py-2 mt-2" onclick="window.location.href='member-edit-form.php?id=<?php echo htmlspecialchars($memberId); ?>'">
-                        Edit
-                        </button>
-                        </div>               
-                </div>
-
-
+        <div class="brand-logo">
+            <!-- <i class="bi bi-mortarboard-fill"></i> -->
+            <img src="/assets/images/ssckpca.png" alt="Logo" class="img-fluid" style="">
         </div>
 
-    </div>
-</div>
-</div>
+        <div>
 
-    <div id="loading" class="loading">
-        Loading member profile...
-    </div>
+            <div class="brand-title">
+                PCA Member Portal
+            </div>
 
-    <div id="error-container"></div>
-
-    <div id="profile-content" style="display:none;">
-        
-
-            <!-- <div class="profile-photo">
-                <img id="profile-photo"
-                     src="https://via.placeholder.com/140"
-                     alt="Profile Photo">
+            <!-- <div class="brand-subtitle">
+                QR Based Member Verification System
             </div> -->
 
+        </div>
 
+    </div>
 
+    <div>
 
+        <button
+            class="btn btn-light"
+            onclick="window.print()"
+        >
+            <i class="bi bi-printer"></i>
+            Print
+        </button>
 
-        
+    </div>
 
+</div>
 
-<!-- Receipt Modal -->
-<div id="receipt-modal"
-     style="
-        display:none;
-        position:fixed;
-        top:0;
-        left:0;
-        width:100%;
-        height:100%;
-        background:rgba(0,0,0,0.7);
-        z-index:9999;
-        justify-content:center;
-        align-items:center;
-     ">
+<div class="row g-4">
+<!-- BACK BUTTON -->
+    <button
+        class="btn btn-light"
+        onclick="history.back()"
+    >
+        <i class="bi bi-arrow-left"></i>
+        Back
+    </button>
+</div>
 
-    <div style="
-        background:#fff;
-        width:90%;
-        max-width:900px;
-        height:90%;
-        border-radius:10px;
-        overflow:hidden;
-        position:relative;
-    ">
+<!-- LOADING -->
+<div
+    id="loading-state"
+    class="loading-state"
+>
+    Loading member profile...
+</div>
 
-        <button id="close-receipt-modal"
-                style="
-                    position:absolute;
-                    right:10px;
-                    top:10px;
-                    z-index:10000;
-                    padding:8px 12px;
-                    cursor:pointer;
-                ">
+<!-- APP -->
+<div
+    id="app-container"
+    class="app-layout"
+    style="display:none;"
+>
+
+    <div class="row g-4">
+
+        <!-- SIDEBAR -->
+        <div class="col-lg-4">
+
+            <div class="profile-sidebar">
+
+                <div class="profile-cover"></div>
+
+                <div class="profile-body">
+
+                    <img
+                        id="profile-photo"
+                        class="profile-photo"
+                        src="https://via.placeholder.com/130"
+                    >
+
+                    <div
+                        class="member-name"
+                        id="member-name"
+                    >
+                    </div>
+
+                    <div
+                        class="member-number"
+                        id="member-number"
+                    >
+                    </div>
+
+                    <div
+                        class="member-status"
+                        id="member-status"
+                    >
+                    </div>
+
+                    <div class="profile-actions">
+                        <button
+                            class="btn btn-primary-theme"
+                            id="edit-profile-btn"
+                            onclick="window.location.href='member-edit-form.php?id=<?php echo htmlspecialchars($memberId); ?>'"
+                        >
+                            <i class="bi bi-receipt"></i>
+                            Edit
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- MAIN -->
+        <div class="col-lg-8">
+
+            <!-- PERSONAL -->
+            <div class="dashboard-panel">
+
+                <div class="panel-title">
+                    <i class="bi bi-person-badge"></i>
+                    Personal Information
+                </div>
+
+                <div class="info-grid">
+
+                    <div class="info-box">
+                        <div class="info-label">Email</div>
+                        <div class="info-value" id="member-email"></div>
+                    </div>
+
+                    <div class="info-box">
+                        <div class="info-label">Phone</div>
+                        <div class="info-value" id="member-phone"></div>
+                    </div>
+
+                    <div class="info-box">
+                        <div class="info-label">NIC</div>
+                        <div class="info-value" id="member-nic"></div>
+                    </div>
+
+                    <div class="info-box">
+                        <div class="info-label">Birthday</div>
+                        <div class="info-value" id="member-birthday"></div>
+                    </div>
+
+                    <div class="info-box">
+                        <div class="info-label">Gender</div>
+                        <div class="info-value" id="member-gender"></div>
+                    </div>
+
+                    <div class="info-box">
+                        <div class="info-label">Batch Year</div>
+                        <div class="info-value" id="member-batch-year"></div>
+                    </div>
+
+                    <div class="info-box">
+                        <div class="info-label">Membership Year</div>
+                        <div class="info-value" id="member-membership-year"></div>
+                    </div>
+
+                    <div class="info-box">
+                        <div class="info-label">Cricket Years</div>
+                        <div class="info-value" id="member-cricket-years"></div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ADDRESS -->
+            <div class="dashboard-panel">
+
+                <div class="panel-title">
+                    <i class="bi bi-geo-alt"></i>
+                    Address
+                </div>
+
+                <div
+                    class="info-value"
+                    id="member-address"
+                >
+                </div>
+
+            </div>
+
+            <!-- PAYMENT -->
+            <div class="dashboard-panel payment-card">
+
+                <div class="panel-title">
+                    <i class="bi bi-credit-card"></i>
+                    Membership Payment
+                </div>
+
+                <div
+                    class="payment-status"
+                    id="payment-status"
+                >
+                    Checking...
+                </div>
+                <div
+                    class="text-muted mt-2"
+                    id="payment-date"
+                >
+                </div>
+                <div class="d-flex justify-content-center">
+                    <div class="text-center">                 
+                        <button
+                            class="btn btn-primary-theme"
+                            id="view-payment-receipt-btn"
+                            style="display:none;"
+                        >
+                            <i class="bi bi-receipt"></i>
+                            View Payment Receipt
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTRIBUTIONS -->
+            <div class="dashboard-panel">
+
+                <div class="panel-title">
+                    <i class="bi bi-cash-stack"></i>
+                    Contributions
+                </div>
+
+                <div id="contributions-container">
+                    <div class="text-muted">
+                        Loading contributions...
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center">
+                    <div class="text-center">                
+                            <button type="button" class="btn btn-primary-theme" onclick="window.location.href='member-contributions-form.php?id=<?php echo htmlspecialchars($memberId); ?>'">
+                            Contributions
+                            </button>                
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- RECEIPT MODAL -->
+<div
+    id="receipt-modal"
+    class="custom-modal-overlay"
+>
+
+    <div class="custom-modal-content">
+
+        <button
+            class="btn btn-danger position-absolute"
+            style="top:15px;right:15px;z-index:999;"
+            onclick="closeReceiptModal()"
+        >
             Close
         </button>
 
-      <!-- Loading -->
-        <div id="receipt-loading"
-             style="
-                padding:20px;
-                text-align:center;
-             ">
-            Loading receipt...
-        </div>
-
-        <!-- Error -->
-        <div id="receipt-error"
-             style="
-                display:none;
-                padding:20px;
-                color:red;
-                text-align:center;
-             ">
-        </div>
-
-        <!-- Image -->
-        <img id="receipt-image"
-             src=""
-             alt="Receipt"
-             style="
-                display:none;
+        <img
+            id="receipt-image"
+            style="
                 width:100%;
                 height:100%;
                 object-fit:contain;
-             ">
+            "
+        >
 
+    </div>
 
-        <iframe id="receipt-frame"
-                src=""
-                style="
-                    width:100%;
-                    height:100%;
-                    border:none;
-                ">
-        </iframe>
-
-    <!-- </div> -->
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 
-const memberId = "<?php echo htmlspecialchars($memberId); ?>";
-
-async function loadMemberProfile() {
-
-    try {
-
-        const response = await fetch(`/v1/member/${memberId}`);
-
-        if (!response.ok) {
-            throw new Error('Failed to load member');
-        }
-
-        const result = await response.json();
-
-        if (!result.success) {
-            throw new Error(result.message || 'Unknown error');
-        }
-
-        const data = result.data;
-
-        document.getElementById('member-name').innerText =
-            data.full_name || '-';
-
-        document.getElementById('member-status').innerText =
-            data.status || '-';
-
-        document.getElementById('member-no').innerText =
-            data.member_no || '-';
-
-        document.getElementById('email').innerText =
-            data.email || '-';
-
-        document.getElementById('phone').innerText =
-            data.phone || '-';
-
-        document.getElementById('nic').innerText =
-            data.nic || '-';
-
-        document.getElementById('birthday').innerText =
-            data.birthday || '-';
-
-        document.getElementById('gender').innerText =
-            data.gender || '-';
-
-        document.getElementById('address').innerText =
-            data.address || '-';
-
-        document.getElementById('batch-year').innerText =
-            data.batch_year || '-';
-
-        document.getElementById('al-batch-year').innerText =
-            data.al_batch_year || '-';
-
-        document.getElementById('membership-year').innerText =
-            data.membership_year || '-';
-
-        document.getElementById('cricket-years').innerText =
-            data.cricket_years || '-';
-
-        document.getElementById('created-at').innerText =
-            data.created_at || '-';
-
-        loadPaymentStatus(memberId);
-
-        if (data.profile_photo) {
-            document.getElementById('profile-photo').src =
-                data.profile_photo;
-        }
-
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('profile-content').style.display = 'block';
-
-    } catch (error) {
-
-        document.getElementById('loading').style.display = 'none';
-
-        document.getElementById('error-container').innerHTML = `
-            <div class="error-box">
-                ${error.message}
-            </div>
-        `;
-
-        console.error(error);
-    }
-}
-
-
-async function loadPaymentStatus(memberId)
-{
-    try {
-
-        const response = await fetch(
-            `/v1/member/${memberId}/payment-status`
-        );
-
-        if (!response.ok) {
-            throw new Error('Unable to verify payment');
-        }
-
-        const result = await response.json();
-
-        if (!result.success) {
-            throw new Error(result.message || 'Payment check failed');
-        }
-
-        const payment = result.data;
-
-        const paymentStatusElement =
-            document.getElementById('payment-status');
-
-        const paymentDateElement =
-            document.getElementById('payment-date');
-
-        if (payment.paid) {
-
-            paymentStatusElement.innerHTML =
-                'PAID';
-
-            paymentDateElement.innerHTML =
-                `Verified on: ${payment.payment_date}`;
-
-            /*
-            |--------------------------------------------------------------------------
-            | Enable Receipt View Button
-            |--------------------------------------------------------------------------
-            */
-            const viewBtn =
-                document.getElementById('view-payment-receipt-btn');
-
-            if (
-                payment.payment_record &&
-                payment.payment_record.file_path
-            ) {
-
-                viewBtn.style.display = 'inline-block';
-
-                viewBtn.onclick = function () {
-                loadReceiptImage(memberId);
-                };
-            }
-
-
-        } else {
-
-            paymentStatusElement.innerHTML =
-                'NOT PAID';
-
-            paymentDateElement.innerHTML =
-                `No payment record for ${payment.year}`;
-        }
-
-    } catch (error) {
-
-        console.error(error);
-
-        document.getElementById('payment-status').innerHTML =
-            'Unable to verify';
-
-        document.getElementById('payment-date').innerHTML =
-            error.message;
-    }
-}
-
-loadMemberProfile();
+const memberId =
+    "<?php echo htmlspecialchars($memberId); ?>";
 
 /*
 |--------------------------------------------------------------------------
-| Load Receipt Image
+| Init
 |--------------------------------------------------------------------------
 */
-async function loadReceiptImage(memberId)
+document.addEventListener(
+    'DOMContentLoaded',
+    async function () {
+
+        await loadMember();
+
+        await loadPaymentStatus();
+
+        await loadContributions();
+    }
+);
+
+/*
+|--------------------------------------------------------------------------
+| Member
+|--------------------------------------------------------------------------
+*/
+async function loadMember()
 {
-    const modal =
-        document.getElementById('receipt-modal');
-
-    const image =
-        document.getElementById('receipt-image');
-
-    const loading =
-        document.getElementById('receipt-loading');
-
-    const errorBox =
-        document.getElementById('receipt-error');
-
-    /*
-    |--------------------------------------------------------------------------
-    | Reset UI
-    |--------------------------------------------------------------------------
-    */
-    modal.style.display = 'flex';
-
-    image.style.display = 'none';
-    image.src = '';
-
-    errorBox.style.display = 'none';
-    errorBox.innerHTML = '';
-
-    loading.style.display = 'block';
-
     try {
 
-        /*
-        |--------------------------------------------------------------------------
-        | Request Receipt File
-        |--------------------------------------------------------------------------
-        */
-        const response = await fetch(
-            `/v1/member/${memberId}/payment-receipt`
-        );
+        const response =
+            await fetch(`/v1/member/${memberId}`);
 
-        if (!response.ok) {
-            throw new Error(
-                'Receipt could not be loaded'
-            );
+        const result =
+            await response.json();
+
+        const member =
+            result.data;
+
+        document.getElementById(
+            'member-name'
+        ).innerHTML =
+            member.full_name || '-';
+
+        document.getElementById(
+            'member-number'
+        ).innerHTML =
+            member.member_no || '-';
+
+        document.getElementById(
+            'member-status'
+        ).innerHTML =
+            (member.status || '').toUpperCase();
+
+        document.getElementById(
+            'member-email'
+        ).innerHTML =
+            member.email || '-';
+
+        document.getElementById(
+            'member-phone'
+        ).innerHTML =
+            member.phone || '-';
+
+        document.getElementById(
+            'member-nic'
+        ).innerHTML =
+            member.nic || '-';
+
+        document.getElementById(
+            'member-birthday'
+        ).innerHTML =
+            member.birthday || '-';
+
+        document.getElementById(
+            'member-gender'
+        ).innerHTML =
+            member.gender || '-';
+
+        document.getElementById(
+            'member-batch-year'
+        ).innerHTML =
+            member.batch_year || '-';
+
+        document.getElementById(
+            'member-membership-year'
+        ).innerHTML =
+            member.membership_year || '-';
+
+        document.getElementById(
+            'member-cricket-years'
+        ).innerHTML =
+            member.cricket_years || '-';
+
+        document.getElementById(
+            'member-address'
+        ).innerHTML =
+            member.address || '-';
+
+        if (member.profile_photo) {
+
+            document.getElementById(
+                'profile-photo'
+            ).src =
+                member.profile_photo;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Convert Blob To Browser URL
-        |--------------------------------------------------------------------------
-        */
-        const blob = await response.blob();
+        document.getElementById(
+            'loading-state'
+        ).style.display = 'none';
+
+        document.getElementById(
+            'app-container'
+        ).style.display = 'block';
+
+    } catch (error) {
+
+        console.error(error);
+
+        document.getElementById(
+            'loading-state'
+        ).innerHTML =
+            'Unable to load member profile';
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Payment Status
+|--------------------------------------------------------------------------
+*/
+async function loadPaymentStatus()
+{
+    try {
+
+        const response =
+            await fetch(
+                `/v1/member/${memberId}/payment-status`
+            );
+
+        const result =
+            await response.json();
+
+        if (
+            result.data &&
+            result.data.paid
+        ) {
+
+            document.getElementById(
+                'payment-status'
+            ).innerHTML =
+                '<span class="status-paid">PAID</span>';
+
+            document.getElementById(
+                'payment-date'
+            ).innerHTML =
+                'Verified payment record found';
+
+            const btn =
+                document.getElementById(
+                    'view-payment-receipt-btn'
+                );
+
+            btn.style.display = 'block';
+
+            btn.onclick = function () {
+
+                loadReceipt();
+            };
+
+        } else {
+
+            document.getElementById(
+                'payment-status'
+            ).innerHTML =
+                '<span class="status-unpaid">NOT PAID</span>';
+        }
+
+    } catch (error) {
+
+        console.error(error);
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Receipt
+|--------------------------------------------------------------------------
+*/
+async function loadReceipt()
+{
+    try {
+
+        const response =
+            await fetch(
+                `/v1/member/${memberId}/payment-receipt`
+            );
+
+        const blob =
+            await response.blob();
 
         const imageUrl =
             URL.createObjectURL(blob);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Show Image
-        |--------------------------------------------------------------------------
-        */
-        image.src = imageUrl;
+        document.getElementById(
+            'receipt-image'
+        ).src =
+            imageUrl;
 
-        image.onload = function () {
-
-            loading.style.display = 'none';
-
-            image.style.display = 'block';
-        };
+        document.getElementById(
+            'receipt-modal'
+        ).style.display =
+            'flex';
 
     } catch (error) {
 
         console.error(error);
-
-        loading.style.display = 'none';
-
-        errorBox.style.display = 'block';
-
-        errorBox.innerHTML = error.message;
     }
 }
 
-
-function openReceiptModal(filePath)
-{
-    const modal =
-        document.getElementById('receipt-modal');
-
-    const frame =
-        document.getElementById('receipt-frame');
-
-    frame.src = filePath;
-
-    modal.style.display = 'flex';
-}
-
-document
-    .getElementById('receipt-modal')
-    .addEventListener('click', function (event) {
-
-        if (event.target.id === 'receipt-modal') {
-
-            closeReceiptModal();
-        }
-    });
-
-
-document
-    .getElementById('close-receipt-modal')
-    .addEventListener('click', function () {
-
-        closeReceiptModal();
-    });    
-
 function closeReceiptModal()
 {
-    const modal =
-        document.getElementById('receipt-modal');
-
-    const image =
-        document.getElementById('receipt-image');
-
-    modal.style.display = 'none';
-
-    image.src = '';
-
-    image.style.display = 'none';
+    document.getElementById(
+        'receipt-modal'
+    ).style.display =
+        'none';
 }
-
 
 /*
 |--------------------------------------------------------------------------
-| Close Modal On Background Click
+| Contributions
 |--------------------------------------------------------------------------
 */
-document
-    .getElementById('receipt-modal')
-    .addEventListener('click', function (event) {
+async function loadContributions()
+{
+    try {
 
-        if (event.target.id === 'receipt-modal') {
+        const response =
+            await fetch(
+                `/v1/member/${memberId}/contributions`
+            );
 
-            document
-                .getElementById('receipt-modal')
-                .style.display = 'none';
+        const result =
+            await response.json();
 
-            document
-                .getElementById('receipt-frame')
-                .src = '';
+        const container =
+            document.getElementById(
+                'contributions-container'
+            );
+
+        if (
+            !result.data ||
+            result.data.length === 0
+        ) {
+
+            container.innerHTML =
+                '<div class="text-muted">No contributions found</div>';
+
+            return;
         }
-    });
 
+        let html = '';
+
+        result.data.forEach(function(item) {
+
+            html += `
+                <div class="contribution-card">
+
+                    <div class="d-flex justify-content-between align-items-start">
+
+                        <div>
+
+                            <div class="contribution-title">
+                                ${item.title}
+                            </div>
+
+                            <div class="text-muted mt-2">
+                                ${item.description || ''}
+                            </div>
+
+                        </div>
+
+                        <div class="contribution-amount">
+                            Rs. ${item.amount}
+                        </div>
+
+                    </div>
+
+                    <div class="small text-muted mt-3">
+                        ${item.created_at}
+                    </div>
+            `;
+
+            if (
+                item.attachments &&
+                item.attachments.length > 0
+            ) {
+
+                html += '<div class="mt-3">';
+
+                item.attachments.forEach(function(file) {
+
+                    html += `
+                        <div class="attachment-item">
+
+                            <a
+                                href="${file.file_path}"
+                                target="_blank"
+                                class="attachment-link"
+                            >
+                                <i class="bi bi-paperclip"></i>
+                                ${file.file_name}
+                            </a>
+
+                        </div>
+                    `;
+                });
+
+                html += '</div>';
+            }
+
+            html += '</div>';
+        });
+
+        container.innerHTML = html;
+
+    } catch (error) {
+
+        console.error(error);
+    }
+}
 
 </script>
 
