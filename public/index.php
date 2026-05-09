@@ -125,6 +125,11 @@ try {
 
     $method = $_SERVER['REQUEST_METHOD'];
 
+    if ($path === '/start') {
+        require __DIR__ . '/start.php';
+        exit;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Frontend Member Profile Page

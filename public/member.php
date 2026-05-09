@@ -13,6 +13,7 @@ if (empty($memberId)) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Member Profile</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/css/theme.css" rel="stylesheet"/>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -101,11 +102,379 @@ if (empty($memberId)) {
             text-align: center;
             padding: 50px;
         }
+
+        :root {
+
+            --primary-bg: #95150F;
+            --secondary-bg: #6F100B;
+            --light-bg: #F6A6A2;
+
+            --white: #ffffff;
+            --dark-text: #2b2b2b;
+        }
+
+        body {
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--primary-bg),
+                    var(--secondary-bg)
+                );
+
+            min-height: 100vh;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px;
+
+            font-family:
+                Inter,
+                Arial,
+                sans-serif;
+        }
+
+.light-bg {
+background-color: #F2E2BA; 
+}
+
+.primary-bg {
+background-color: #95150F; 
+}
+
+
+
+       
+
+        .portal-wrapper {
+
+            width: 100%;
+            max-width: 1100px;
+
+            background: var(--white);
+
+            border-radius: 20px;
+
+            overflow: hidden;
+
+            box-shadow:
+                0 10px 40px rgba(0,0,0,0.25);
+        }
+
+        .left-panel {
+
+            background:
+                linear-gradient(
+                    180deg,
+                    var(--primary-bg),
+                    var(--secondary-bg)
+                );
+
+            color: var(--white);
+
+            padding: 60px;
+
+            height: 100%;
+        }
+
+        .brand-title {
+
+            font-size: 42px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .brand-subtitle {
+
+            margin-top: 20px;
+
+            font-size: 18px;
+
+            opacity: 0.9;
+        }
+
+        .feature-list {
+
+            margin-top: 40px;
+        }
+
+        .feature-item {
+
+            margin-bottom: 16px;
+
+            padding-left: 28px;
+
+            position: relative;
+        }
+
+        .feature-item::before {
+
+            content: "•";
+
+            position: absolute;
+
+            left: 0;
+
+            font-size: 22px;
+        }
+
+        .right-panel {
+
+            padding: 60px;
+            background: #fff;
+        }
+
+        .login-title {
+
+            font-size: 34px;
+            font-weight: 700;
+
+            color: var(--primary-bg);
+        }
+
+        .login-subtitle {
+
+            margin-top: 10px;
+
+            color: #666;
+        }
+
+        .form-control {
+
+            border-radius: 12px;
+
+            padding: 14px;
+
+            border: 1px solid #ddd;
+        }
+
+        .form-control:focus {
+
+            border-color: var(--primary-bg);
+
+            box-shadow:
+                0 0 0 0.2rem rgba(149,21,15,0.15);
+        }
+
+        .btn-login {
+
+            background: var(--primary-bg);
+
+            color: var(--white);
+
+            border: none;
+
+            border-radius: 12px;
+
+            padding: 14px;
+
+            font-weight: 600;
+
+            transition: 0.2s;
+        }
+
+        .btn-login:hover {
+
+            background: var(--secondary-bg);
+        }
+
+        .quick-links {
+
+            margin-top: 30px;
+        }
+
+        .quick-links a {
+
+            color: var(--primary-bg);
+
+            text-decoration: none;
+
+            font-weight: 500;
+        }
+
+        .quick-links a:hover {
+
+            text-decoration: underline;
+        }
+
+        .footer-text {
+
+            margin-top: 30px;
+
+            font-size: 13px;
+
+            color: #888;
+        }
+
+        .school-badge {
+
+            display: inline-block;
+
+            background: rgba(255,255,255,0.1);
+
+            padding: 10px 16px;
+
+            border-radius: 999px;
+
+            margin-bottom: 25px;
+
+            font-size: 14px;
+        }
+
+        @media(max-width: 768px) {
+
+            .left-panel,
+            .right-panel {
+
+                padding: 35px;
+            }
+
+            .brand-title {
+
+                font-size: 32px;
+            }
+        } 
+
+
+
     </style>
 </head>
 <body>
 
-<div class="profile-container">
+<div class="container">
+
+<!-- <div class="page-container"> -->
+
+        
+<div class="page-header">
+    <div class="">
+        <img src="/assets/images/ssckpca.png" alt="Logo" class="img-fluid" style="height:50px;">
+    </div>    
+    <div>
+        <div class="page-title">
+        Member Info Card
+        </div>
+    </div>
+</div>
+
+<div class="page-content light-bg">
+                
+    <div class="profile-grid">
+
+                    <div class="info-card">
+                        <div class="member-name" id="member-name"></div>
+                        <div class="member-status" id="member-status"></div>
+                        <div style="margin-top:10px;">
+                            Member No:
+                            <strong id="member-no"></strong>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-label">Email</div>
+                        <div class="info-value" id="email"></div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-label">Phone</div>
+                        <div class="info-value" id="phone"></div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-label">NIC</div>
+                        <div class="info-value" id="nic"></div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-label">Birthday</div>
+                        <div class="info-value" id="birthday"></div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-label">Gender</div>
+                        <div class="info-value" id="gender"></div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-label">Address</div>
+                        <div class="info-value" id="address"></div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-label">Batch Year</div>
+                        <div class="info-value" id="batch-year"></div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-label">AL Batch Year</div>
+                        <div class="info-value" id="al-batch-year"></div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-label">Membership Year</div>
+                        <div class="info-value" id="membership-year"></div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-label">Cricket Years</div>
+                        <div class="info-value" id="cricket-years"></div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-label">Created At</div>
+                        <div class="info-value" id="created-at"></div>
+                    </div>
+
+                </div>
+
+                <div class="info-card">
+                    <div class="info-label">
+                        Annual Membership Fee
+                    </div>
+
+                    <div class="info-value" id="payment-status">
+                        Checking...
+                    </div>
+
+                    <div id="payment-date"
+                        style="margin-top:8px;font-size:12px;color:#666;">
+                    </div>
+
+                    <button
+                        id="view-payment-receipt-btn"
+                        class="btn btn-secondary"
+                        style="
+                            display:none;
+                            margin-top:12px;
+                            padding:8px 14px;
+                            cursor:pointer;
+                        ">
+                        View Receipt
+                    </button>
+                </div> 
+
+                <div class="info-card">
+                        <div class="col-5">
+                        <button type="button" class="btn btn-secondary w-100 py-2 mt-2" onclick="window.location.href='member-contributions-form.php?id=<?php echo htmlspecialchars($memberId); ?>'">
+                        Contributions
+                        </button>
+                        </div>
+
+                        <div class="col-5">
+                        <button type="button" class="btn btn-secondary w-100 py-2 mt-2" onclick="window.location.href='member-edit-form.php?id=<?php echo htmlspecialchars($memberId); ?>'">
+                        Edit
+                        </button>
+                        </div>               
+                </div>
+
+
+        </div>
+
+    </div>
+</div>
+</div>
 
     <div id="loading" class="loading">
         Loading member profile...
@@ -114,7 +483,7 @@ if (empty($memberId)) {
     <div id="error-container"></div>
 
     <div id="profile-content" style="display:none;">
-        <div class="profile-header">
+        
 
             <!-- <div class="profile-photo">
                 <img id="profile-photo"
@@ -122,118 +491,12 @@ if (empty($memberId)) {
                      alt="Profile Photo">
             </div> -->
 
-            <div>
-                <div class="member-name" id="member-name"></div>
 
-                <div class="member-status" id="member-status"></div>
 
-                <div style="margin-top:10px;">
-                    Member No:
-                    <strong id="member-no"></strong>
-                </div>
-            </div>
-        </div>
 
-        <div class="profile-grid">
 
-            <div class="info-card">
-                <div class="info-label">Email</div>
-                <div class="info-value" id="email"></div>
-            </div>
+        
 
-            <div class="info-card">
-                <div class="info-label">Phone</div>
-                <div class="info-value" id="phone"></div>
-            </div>
-
-            <div class="info-card">
-                <div class="info-label">NIC</div>
-                <div class="info-value" id="nic"></div>
-            </div>
-
-            <div class="info-card">
-                <div class="info-label">Birthday</div>
-                <div class="info-value" id="birthday"></div>
-            </div>
-
-            <div class="info-card">
-                <div class="info-label">Gender</div>
-                <div class="info-value" id="gender"></div>
-            </div>
-
-            <div class="info-card">
-                <div class="info-label">Address</div>
-                <div class="info-value" id="address"></div>
-            </div>
-
-            <div class="info-card">
-                <div class="info-label">Batch Year</div>
-                <div class="info-value" id="batch-year"></div>
-            </div>
-
-            <div class="info-card">
-                <div class="info-label">AL Batch Year</div>
-                <div class="info-value" id="al-batch-year"></div>
-            </div>
-
-            <div class="info-card">
-                <div class="info-label">Membership Year</div>
-                <div class="info-value" id="membership-year"></div>
-            </div>
-
-            <div class="info-card">
-                <div class="info-label">Cricket Years</div>
-                <div class="info-value" id="cricket-years"></div>
-            </div>
-
-            <div class="info-card">
-                <div class="info-label">Created At</div>
-                <div class="info-value" id="created-at"></div>
-            </div>
-
-        </div>
-
-        <div class="info-card">
-            <div class="info-label">
-                Annual Membership Fee
-            </div>
-
-            <div class="info-value" id="payment-status">
-                Checking...
-            </div>
-
-            <div id="payment-date"
-                style="margin-top:8px;font-size:12px;color:#666;">
-            </div>
-
-            <button
-                id="view-payment-receipt-btn"
-                class="btn btn-secondary"
-                style="
-                    display:none;
-                    margin-top:12px;
-                    padding:8px 14px;
-                    cursor:pointer;
-                ">
-                View Receipt
-            </button>
-        </div> 
-
-        <div class="info-card">
-                <div class="col-5">
-                <button type="button" class="btn btn-secondary w-100 py-2 mt-2" onclick="window.location.href='member-contributions-form.php?id=<?php echo htmlspecialchars($memberId); ?>'">
-                Contributions
-                </button>
-                </div>
-
-                <div class="col-5">
-                <button type="button" class="btn btn-secondary w-100 py-2 mt-2" onclick="window.location.href='member-edit-form.php?id=<?php echo htmlspecialchars($memberId); ?>'">
-                Edit
-                </button>
-                </div>               
-        </div>
-    </div>
-</div>
 
 <!-- Receipt Modal -->
 <div id="receipt-modal"
@@ -312,7 +575,7 @@ if (empty($memberId)) {
                 ">
         </iframe>
 
-    </div>
+    <!-- </div> -->
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
