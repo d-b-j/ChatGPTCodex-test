@@ -428,6 +428,12 @@ class MemberService
         return $this->memberModel->getMemberPaymentStatus($memberId);
     }
 
+    public function getMemberPaymentReceipt(string $memberId): ?array
+    {
+        return $this->memberModel->getMemberPaymentReceipt($memberId);
+    }
+
+
 }
 
 

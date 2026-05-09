@@ -277,6 +277,11 @@ function handleMemberRequest($method, $id = null, $action = null)
                     return;
                 }
 
+                if ($action === 'payment-receipt') {
+                    $controller->paymentReceipt($id);
+                    return;
+                }
+
                 $controller->retrieve($id);
                 break;
 

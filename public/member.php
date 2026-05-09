@@ -205,10 +205,102 @@ if (empty($memberId)) {
     <div id="payment-date"
          style="margin-top:8px;font-size:12px;color:#666;">
     </div>
+
+    <button
+        id="view-payment-receipt-btn"
+        style="
+            display:none;
+            margin-top:12px;
+            padding:8px 14px;
+            cursor:pointer;
+        ">
+        View Receipt
+    </button>
 </div> 
 
     </div>
 </div>
+
+<!-- Receipt Modal -->
+<div id="receipt-modal"
+     style="
+        display:none;
+        position:fixed;
+        top:0;
+        left:0;
+        width:100%;
+        height:100%;
+        background:rgba(0,0,0,0.7);
+        z-index:9999;
+        justify-content:center;
+        align-items:center;
+     ">
+
+    <div style="
+        background:#fff;
+        width:90%;
+        max-width:900px;
+        height:90%;
+        border-radius:10px;
+        overflow:hidden;
+        position:relative;
+    ">
+
+        <button id="close-receipt-modal"
+                style="
+                    position:absolute;
+                    right:10px;
+                    top:10px;
+                    z-index:10000;
+                    padding:8px 12px;
+                    cursor:pointer;
+                ">
+            Close
+        </button>
+
+      <!-- Loading -->
+        <div id="receipt-loading"
+             style="
+                padding:20px;
+                text-align:center;
+             ">
+            Loading receipt...
+        </div>
+
+        <!-- Error -->
+        <div id="receipt-error"
+             style="
+                display:none;
+                padding:20px;
+                color:red;
+                text-align:center;
+             ">
+        </div>
+
+        <!-- Image -->
+        <img id="receipt-image"
+             src=""
+             alt="Receipt"
+             style="
+                display:none;
+                width:100%;
+                height:100%;
+                object-fit:contain;
+             ">
+
+
+        <iframe id="receipt-frame"
+                src=""
+                style="
+                    width:100%;
+                    height:100%;
+                    border:none;
+                ">
+        </iframe>
+
+    </div>
+</div>
+
 
 <script>
 
@@ -333,6 +425,27 @@ async function loadPaymentStatus(memberId)
             paymentDateElement.innerHTML =
                 `Verified on: ${payment.payment_date}`;
 
+            /*
+            |--------------------------------------------------------------------------
+            | Enable Receipt View Button
+            |--------------------------------------------------------------------------
+            */
+            const viewBtn =
+                document.getElementById('view-payment-receipt-btn');
+
+            if (
+                payment.payment_record &&
+                payment.payment_record.file_path
+            ) {
+
+                viewBtn.style.display = 'inline-block';
+
+                viewBtn.onclick = function () {
+                loadReceiptImage(memberId);
+                };
+            }
+
+
         } else {
 
             paymentStatusElement.innerHTML =
@@ -355,6 +468,163 @@ async function loadPaymentStatus(memberId)
 }
 
 loadMemberProfile();
+
+/*
+|--------------------------------------------------------------------------
+| Load Receipt Image
+|--------------------------------------------------------------------------
+*/
+async function loadReceiptImage(memberId)
+{
+    const modal =
+        document.getElementById('receipt-modal');
+
+    const image =
+        document.getElementById('receipt-image');
+
+    const loading =
+        document.getElementById('receipt-loading');
+
+    const errorBox =
+        document.getElementById('receipt-error');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Reset UI
+    |--------------------------------------------------------------------------
+    */
+    modal.style.display = 'flex';
+
+    image.style.display = 'none';
+    image.src = '';
+
+    errorBox.style.display = 'none';
+    errorBox.innerHTML = '';
+
+    loading.style.display = 'block';
+
+    try {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Request Receipt File
+        |--------------------------------------------------------------------------
+        */
+        const response = await fetch(
+            `/v1/member/${memberId}/payment-receipt`
+        );
+
+        if (!response.ok) {
+            throw new Error(
+                'Receipt could not be loaded'
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Convert Blob To Browser URL
+        |--------------------------------------------------------------------------
+        */
+        const blob = await response.blob();
+
+        const imageUrl =
+            URL.createObjectURL(blob);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Show Image
+        |--------------------------------------------------------------------------
+        */
+        image.src = imageUrl;
+
+        image.onload = function () {
+
+            loading.style.display = 'none';
+
+            image.style.display = 'block';
+        };
+
+    } catch (error) {
+
+        console.error(error);
+
+        loading.style.display = 'none';
+
+        errorBox.style.display = 'block';
+
+        errorBox.innerHTML = error.message;
+    }
+}
+
+
+function openReceiptModal(filePath)
+{
+    const modal =
+        document.getElementById('receipt-modal');
+
+    const frame =
+        document.getElementById('receipt-frame');
+
+    frame.src = filePath;
+
+    modal.style.display = 'flex';
+}
+
+document
+    .getElementById('receipt-modal')
+    .addEventListener('click', function (event) {
+
+        if (event.target.id === 'receipt-modal') {
+
+            closeReceiptModal();
+        }
+    });
+
+
+document
+    .getElementById('close-receipt-modal')
+    .addEventListener('click', function () {
+
+        closeReceiptModal();
+    });    
+
+function closeReceiptModal()
+{
+    const modal =
+        document.getElementById('receipt-modal');
+
+    const image =
+        document.getElementById('receipt-image');
+
+    modal.style.display = 'none';
+
+    image.src = '';
+
+    image.style.display = 'none';
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Close Modal On Background Click
+|--------------------------------------------------------------------------
+*/
+document
+    .getElementById('receipt-modal')
+    .addEventListener('click', function (event) {
+
+        if (event.target.id === 'receipt-modal') {
+
+            document
+                .getElementById('receipt-modal')
+                .style.display = 'none';
+
+            document
+                .getElementById('receipt-frame')
+                .src = '';
+        }
+    });
+
 
 </script>
 

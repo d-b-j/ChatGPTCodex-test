@@ -575,9 +575,9 @@ class MemberController
     {
         try {
 
-            $service = new \App\Services\MemberService();
+            // $service = new \App\Services\MemberService();
 
-            $result = $service->getMemberPaymentStatus($memberId);
+            $result = $this->memberService->getMemberPaymentStatus($memberId);
 
             \App\Helpers\Response::success(
                 $result,
@@ -594,6 +594,49 @@ class MemberController
                 $e->getMessage(),
                 500
             );
+        }
+    }
+
+    public function paymentReceipt(string $memberId): void
+    {
+        try {
+
+            $file = $this->memberService->getMemberPaymentStatus($memberId);
+            $loadfile = $file['payment_record']['file_path'] . $file['payment_record']['original_name'];
+
+            if (!$file || !file_exists($loadfile)) {
+
+                http_response_code(404);
+                exit('Receipt not found');
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Content Type
+            |--------------------------------------------------------------------------
+            */
+            header('Content-Type: ' . $file['payment_record']['mime_type']);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Inline Browser Render
+            |--------------------------------------------------------------------------
+            */
+            header(
+                'Content-Disposition: inline; filename="' .
+                basename($loadfile) .
+                '"'
+            );
+
+            header('Content-Length: ' . filesize($loadfile));
+
+            readfile($loadfile);
+            exit;
+
+        } catch (\Exception $e) {
+
+            http_response_code(500);
+            exit('Unable to load receipt');
         }
     }
 
