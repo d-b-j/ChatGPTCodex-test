@@ -541,7 +541,7 @@ class MemberController
 
             $contributionInfo = [
                 'member_id' => $memberId,
-                'field_id' => $memberId . '_' . $contributionId,
+                'field_id' => $field_key,
                 'title' => $_POST['title'] ?? '',
                 'amount' => $_POST['amount'] ?? 0,
                 'description' => $_POST['description'] ?? '',
@@ -640,6 +640,30 @@ class MemberController
         }
     }
 
+    public function contributions(string $memberId): void
+    {
+        try {
+
+            $contributions = $this->memberService->getMemberContributions($memberId);
+
+            \App\Helpers\Response::success(
+                $contributions,
+                'Member contributions retrieved successfully'
+            );
+
+        } catch (\Exception $e) {
+
+            \App\Helpers\Logger::error(
+                $e->getMessage(),
+                ['exception' => $e]
+            );
+
+            \App\Helpers\Response::error(
+                $e->getMessage(),
+                500
+            );
+        }
+    }    
 
 ///////////// FILE UPLOAD
 

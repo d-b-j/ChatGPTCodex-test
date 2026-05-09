@@ -61,6 +61,7 @@ body {
                 <div class="card-body p-4 p-lg-5">
                     <div class="d-flex justify-content-between align-items-start mb-4">
                         <div>
+                            <a href="member.php?id=<?php echo htmlspecialchars($memberId); ?>"><-- go back</a>
                             <h2 class="mb-1">Edit Member</h2>
                             <p class="text-muted mb-0">Update member details and manage membership documents.</p>
                         </div>
@@ -157,6 +158,11 @@ body {
                                 <textarea class="form-control" id="address" name="address" rows="3"></textarea>
                             </div>
 
+                            <div class="col-12">
+                                <label class="form-label" for="address">Membership Status:</label>
+                                <div class="info-value" id="payment-status"></div>
+                            </div>
+
                             <div class="col-12 pt-2">
                                 <!-- <button type="submit" class="btn btn-primary px-4">Update Member</button> -->
                             </div>
@@ -191,6 +197,11 @@ Contributions
 </button>
 </div>
 
+<div class="col-5">
+<button type="button" class="btn w-100 py-2 mt-2 btn-danger" onclick="">
+Revoke membership
+</button>
+</div>
                                 </div>
                             </div>
                         </div>
@@ -242,6 +253,7 @@ Contributions
     const membershipResult = document.getElementById('membershipResult');
     const membershipModal = document.getElementById('membershipModal');
     const modalInstance = bootstrap.Modal.getOrCreateInstance(membershipModal);
+    const currentYear = new Date().getFullYear();
 
     const fields = [
         'first_name',
@@ -299,6 +311,7 @@ Contributions
             }
 
             fillMemberForm(payload.data || {});
+            loadPaymentStatus(memberId);
 
         } catch (error) {
             showAlert(error.message);
@@ -338,6 +351,45 @@ Contributions
         }
 
     }
+
+    async function loadPaymentStatus(memberId)
+    {
+        try {
+
+            const response = await fetch(
+                `/v1/member/${memberId}/payment-status`
+            );
+
+            if (!response.ok) {
+                throw new Error('Unable to verify payment');
+            }
+
+            const result = await response.json();
+
+            if (!result.success) {
+                throw new Error(result.message || 'Payment check failed');
+            }
+
+            const payment = result.data;
+
+            const paymentStatusElement =
+                document.getElementById('payment-status');
+
+            if (payment.paid) {
+                paymentStatusElement.innerHTML =
+                    'Renewed for year ' + currentYear;
+            } else {
+
+                paymentStatusElement.innerHTML =
+                    'NOT RENEWED FOR YEAR ' + currentYear;
+            }
+
+        } catch (error) {
+            console.error(error);
+            document.getElementById('payment-status').innerHTML = 'Unable to verify';
+        }
+    }
+
 
 
 // memberEditForm.addEventListener('submit', async (event) => {

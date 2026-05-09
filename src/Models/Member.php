@@ -654,5 +654,62 @@ class Member
         ];
     }
 
+    public function getContributionsByMemberId(
+        string $memberId
+    ): array {
+
+        $sql = "
+            SELECT
+                id,
+                member_id,
+                field_id,
+                title,
+                amount,
+                description,
+                created_at
+            FROM member_contributions
+            WHERE member_id = :member_id
+            ORDER BY created_at DESC
+        ";
+
+        $stmt = $this->db->prepare($sql);
+
+        $stmt->execute([
+            ':member_id' => $memberId
+        ]);
+
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public function getContributionAttachments(
+        string $memberId,
+        int|string $fieldId
+    ): array {
+
+        $sql = "
+            SELECT
+                id,
+                member_id,
+                field_key,
+                context_ref,
+                stored_name,
+                file_path,
+                created_at
+            FROM member_attachments
+            WHERE member_id = :member_id
+            AND field_key = :field_key
+            ORDER BY created_at DESC
+        ";
+
+        $stmt = $this->db->prepare($sql);
+
+        $stmt->execute([
+            ':member_id' => $memberId,
+            ':field_key' => $fieldId
+        ]);
+
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
 
 }

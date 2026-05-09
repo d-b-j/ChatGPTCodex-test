@@ -29,7 +29,8 @@ if (!$memberId) {
 
 <div class="card shadow border-0 rounded-4">
 <div class="card-body p-4">
-
+<button onclick="history.back()">Go Back</button>
+<!-- <a href="member.php?id=<?php echo htmlspecialchars($memberId); ?>"><-- go back</a> -->
 <h3 class="mb-4">Member Contributions</h3>
 
 <!-- EXISTING CONTRIBUTIONS -->
@@ -93,6 +94,7 @@ Add Attachment
 <script>
 const memberId = document.getElementById('member_id').value;
 const msg = document.getElementById('msg');
+let existingContributions = 0;
 
 let attachIndex = 0;
 
@@ -121,31 +123,42 @@ function addAttachmentRow() {
 // initialize one row
 addAttachmentRow();
 
-// /* =========================
-//    Load Contributions
-// ========================= */
-// async function loadContributions() {
-//     try {
-//         const res = await fetch(`/v1/member/${memberId}/contributions`);
-//         const data = await res.json();
+/* =========================
+   Load Contributions
+========================= */
+async function loadContributions() {
+    try {
+        const res = await fetch(`/v1/member/${memberId}/contributions`);
+        const data = await res.json();
 
-//         let html = '';
+        let html = '';
+        var nowContributions = existingContributions;
 
-//         (data.data || []).forEach(c => {
-//             html += `
-//             <div class="border p-3 mb-2 rounded">
-//                 <strong>${c.title}</strong>
-//                 <div>Amount: ${c.amount}</div>
-//                 <div class="text-muted">${c.description || ''}</div>
-//             </div>`;
-//         });
+        (data.data || []).forEach(c => {
+            nowContributions++;
+            html += `
+            <div class="border p-3 mb-2 rounded">
+                <strong>${c.title}</strong>
+                <div>Amount: ${c.amount}</div>
+                <div class="text-muted">${c.description || ''}</div>`;
+            attIdx = 0;
+            c.attachments.forEach(a => {
+                html += `<span>attachment ${++attIdx}</span> | `;
+            });
+                html += `<button type="button" class="btn btn-sm btn-warning"
+                    onclick="">Remove</button>`;
 
-//         document.getElementById('contributionList').innerHTML = html;
+            html += `</div>`;
 
-//     } catch (e) {
-//         msg.innerHTML = `<div class="alert alert-danger">${e.message}</div>`;
-//     }
-// }
+
+        });
+
+        document.getElementById('contributionList').innerHTML = html;
+        existingContributions = nowContributions;
+    } catch (e) {
+        msg.innerHTML = `<div class="alert alert-danger">${e.message}</div>`;
+    }
+}
 
 /* =========================
    Submit Form
@@ -157,14 +170,14 @@ document.getElementById('contributionForm')
 
     const fd = new FormData();
 
-    contributionID = 'contribution' + '001';
+    contributionID = (existingContributions + 1);
 
     fd.append('member_id', memberId);
     fd.append('contribution_id', contributionID);
     fd.append('title', document.getElementById('title').value);
     fd.append('description', document.getElementById('description').value);
     fd.append('amount', document.getElementById('amount').value);
-    fd.append('field_key', memberId + '_contribution_' + contributionID + '_support_documents' );
+    fd.append('field_key', memberId + '_contribution_' + contributionID );
 
 
     // attachments
@@ -185,7 +198,7 @@ document.getElementById('contributionForm')
 
         if (!response.ok) throw new Error(data.error || 'Failed');
 
-        console.log(data);
+        // console.log(data);
         msg.innerHTML = `<div class="alert alert-success">Contribution added. Reloading...</div>`;
         setTimeout(() => {
             document.getElementById('contributionForm').reset();
@@ -200,65 +213,7 @@ document.getElementById('contributionForm')
         msg.innerHTML = `<div class="alert alert-danger">${e.message}</div>`;
     }
 });
-
-// loadContributions();
-
-
-// function addAttachmentRow() {
-//     const html = `
-//     <div class="border p-2 mb-2 attachment-row">
-//         <div class="row g-2">
-//             <div class="col-md-3"><input placeholder="field_key" class="form-control field_key"></div>
-//             <div class="col-md-3"><input placeholder="field_label" class="form-control field_label"></div>
-//             <div class="col-md-2"><input placeholder="category" class="form-control category"></div>
-//             <div class="col-md-2"><input placeholder="context" class="form-control context_ref"></div>
-//             <div class="col-md-2"><input type="file" class="form-control file"></div>
-//         </div>
-//     </div>`;
-//     document.getElementById('attachmentRows').insertAdjacentHTML('beforeend', html);
-// }
-// <div class="col-12 mt-4">
-// <h5>Upload New Attachments</h5>
-// <div id="attachmentRows"></div>
-
-
-//     function addContributionRow() {
-//         const div = document.createElement("div");
-//         div.className = "contribution-item";
-
-//         div.innerHTML = `
-//             <label>Title</label>
-//             <input type="text" name="contribution_title[]"><br/>
-//             <label>Description</label>
-//             <textarea name="contribution_desc[]" class="form-control" rows="4"></textarea>
-
-//             <label style="margin-top:10px;">Amount</label>
-//             <input type="number" name="contribution_amount[]">
-
-//             <label style="margin-top:10px;">Attachment</label>
-//             <input type="file" name="contribution_attachment[]">
-
-//             <button onclick="removeContributionRow(this)">
-//                 <i class="bi bi-trash-fill"></i>
-//             </button>
-//             <hr/>
-//         `;
-
-//         document.getElementById("contributionRows").appendChild(div);
-//     }
-
-//     function removeContributionRow(btn) {
-//         btn.closest(".contribution-item").remove();
-//     }
-// <!-- CONTRIBUTIONS -->
-// <div class="col-12 mt-4">
-//     <h5 class="border-bottom pb-2">Contributions</h5>
-//     <div id="contributionRows"></div>
-//     <button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="addContributionRow()">Add Contribution</button>
-// </div>
-
-
-
+loadContributions();
 </script>
 
 </body>

@@ -282,6 +282,12 @@ function handleMemberRequest($method, $id = null, $action = null)
                     return;
                 }
 
+                // GET /v1/member/{member-id}/contributions
+                if ($action === 'contributions') {
+                    $controller->contributions($id);
+                    return;
+                }
+
                 $controller->retrieve($id);
                 break;
 

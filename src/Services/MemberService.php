@@ -433,6 +433,28 @@ class MemberService
         return $this->memberModel->getMemberPaymentReceipt($memberId);
     }
 
+    public function getMemberContributions(
+        string $memberId
+    ): array {
+
+        $contributions = $this->memberModel->getContributionsByMemberId( $memberId );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Attach Attachments To Each Contribution
+        |--------------------------------------------------------------------------
+        */
+        foreach ($contributions as &$contribution) {
+            $attachments = $this->memberModel->getContributionAttachments(
+                                $memberId,
+                                $contribution['field_id']
+                            );
+
+            $contribution['attachments'] = $attachments;
+        }
+
+        return $contributions;
+    }
 
 }
 

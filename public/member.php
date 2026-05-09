@@ -1,5 +1,5 @@
 <?php
-$memberId = $_GET['member_id'] ?? '';
+$memberId = $_GET['id'] ?? '';
 
 if (empty($memberId)) {
     die("Invalid member ID");
@@ -12,7 +12,7 @@ if (empty($memberId)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Member Profile</title>
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -116,11 +116,11 @@ if (empty($memberId)) {
     <div id="profile-content" style="display:none;">
         <div class="profile-header">
 
-            <div class="profile-photo">
+            <!-- <div class="profile-photo">
                 <img id="profile-photo"
                      src="https://via.placeholder.com/140"
                      alt="Profile Photo">
-            </div>
+            </div> -->
 
             <div>
                 <div class="member-name" id="member-name"></div>
@@ -193,31 +193,45 @@ if (empty($memberId)) {
 
         </div>
 
-<div class="info-card">
-    <div class="info-label">
-        Annual Membership Fee
-    </div>
+        <div class="info-card">
+            <div class="info-label">
+                Annual Membership Fee
+            </div>
 
-    <div class="info-value" id="payment-status">
-        Checking...
-    </div>
+            <div class="info-value" id="payment-status">
+                Checking...
+            </div>
 
-    <div id="payment-date"
-         style="margin-top:8px;font-size:12px;color:#666;">
-    </div>
+            <div id="payment-date"
+                style="margin-top:8px;font-size:12px;color:#666;">
+            </div>
 
-    <button
-        id="view-payment-receipt-btn"
-        style="
-            display:none;
-            margin-top:12px;
-            padding:8px 14px;
-            cursor:pointer;
-        ">
-        View Receipt
-    </button>
-</div> 
+            <button
+                id="view-payment-receipt-btn"
+                class="btn btn-secondary"
+                style="
+                    display:none;
+                    margin-top:12px;
+                    padding:8px 14px;
+                    cursor:pointer;
+                ">
+                View Receipt
+            </button>
+        </div> 
 
+        <div class="info-card">
+                <div class="col-5">
+                <button type="button" class="btn btn-secondary w-100 py-2 mt-2" onclick="window.location.href='member-contributions-form.php?id=<?php echo htmlspecialchars($memberId); ?>'">
+                Contributions
+                </button>
+                </div>
+
+                <div class="col-5">
+                <button type="button" class="btn btn-secondary w-100 py-2 mt-2" onclick="window.location.href='member-edit-form.php?id=<?php echo htmlspecialchars($memberId); ?>'">
+                Edit
+                </button>
+                </div>               
+        </div>
     </div>
 </div>
 
@@ -301,7 +315,7 @@ if (empty($memberId)) {
     </div>
 </div>
 
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 
 const memberId = "<?php echo htmlspecialchars($memberId); ?>";
