@@ -57,8 +57,8 @@ class MemberController
             }       
 
             $memberNumber = null;
-            if( isset($payload['al_batch_year'])  ) {
-                $alBatchYear = $payload['al_batch_year'];
+            if( isset($payload['batch_year'])  ) {
+                $alBatchYear = $payload['batch_year'];
                 $memberNumber = $this->generateMemberNumber($alBatchYear);
             }
 
@@ -75,15 +75,16 @@ class MemberController
             // The keys 'member_no', 'status', and 'id' should correspond to the keys expected by $this->memberService->create
 
             // Extract the profile data
-            $profileData = array_intersect_key($payload, array_flip(['birthday', 'nic', 'al_batch_year', 'cricket_years', 'membership_year', 'first_name', 'last_name', 'full_name', 'email', 'phone', 'batch_year', 'gender', 'address', 'profile_photo']));
+
+            $profileData = array_intersect_key($payload, array_flip(['birthday', 'nic', 'cricket_years', 'membership_year', 'first_name', 'last_name', 'full_name', 'email', 'phone', 'batch_year', 'gender', 'address', 'profile_photo']));
             // The keys 'birthday', 'nic', 'al_batch_year', 'cricket_years', 'membership_year', 'first_name', 'last_name', 'full_name', 'email', 'phone', 'batch_year', 'gender', 'address', 'profile_photo' should correspond to the keys expected by $this->memberService->createMemberProfile
 
             // Create member through service
             $member = $this->memberService->create($memberData); 
                 $profile = [];
-                if( isset($member['id']) ) {
+                if( isset($member['member_id']) ) {
                     // Create member profile
-                    $profile = $this->memberService->createMemberProfile($member['id'], $profileData);
+                    $profile = $this->memberService->createMemberProfile($member['member_id'], $profileData);
                 }
 
 

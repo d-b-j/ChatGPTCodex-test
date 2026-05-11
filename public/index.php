@@ -21,7 +21,7 @@ ini_set('log_errors', 1);
 define('APP_ROOT', dirname(__DIR__));
 define('SRC_PATH', APP_ROOT . '/src');
 define('BASE_URL', '/v1');
-define('API_HOST', 'phpdev803.loc');
+define('API_HOST', 'dashboard-php82.local');
 define('STORAGE_PATH', APP_ROOT . '/storage');
 define('QR_CODE_STORAGE_PATH', STORAGE_PATH . '/qrcodes');
 define('APP_URL', 'https://' . API_HOST . BASE_URL);

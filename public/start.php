@@ -390,7 +390,7 @@
                 <div class="quick-links">
 
                     <div>
-                        <a href="#">
+                        <a href="#" onclick="window.location.href='member-registration.php'">
                             Create New Account
                         </a>
                     </div>

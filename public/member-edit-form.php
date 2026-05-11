@@ -1,460 +1,1110 @@
 <?php
-// Expect: /member-edit-form.php?id=UUID
+
 $memberId = $_GET['id'] ?? '';
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Edit Member</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<style>
-body {
-    background: #f4f6f8;
-}
-.form-control,
-.form-select,
-.form-control:focus,
-.form-select:focus {
-    background-color: #f8f9fa;
-    border: 1px solid #75797d;
-    box-shadow: none;
-}
-.card {
-    border: 0;
-    border-radius: 1.25rem;
-}
-.action-row {
-    display: flex;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-}
 
-#pageAlert {
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  z-index: 9999;
-  background-color: #f1f1f1;
-  padding: 10px;
-  border: 1px solid #ccc;
-}
+    <meta charset="UTF-8">
 
-#result {
-  position: fixed;
-  bottom: 10px;
-  left: 10px;
-  z-index: 9999;
-  background-color: #f1f1f1;
-  padding: 10px;
-  border: 1px solid #ccc;
-}
-</style>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Edit Member</title>
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Bootstrap Icons -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+    <!-- Theme -->
+    <link
+        href="/assets/css/theme.css"
+        rel="stylesheet"
+    >
+
+    <style>
+
+        body {
+
+            background:
+                #f4f6f9;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Topbar
+        |--------------------------------------------------------------------------
+        */
+        .topbar {
+
+            height: 72px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--primary-bg),
+                    var(--secondary-bg)
+                );
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 0 28px;
+
+            color: white;
+
+            box-shadow:
+                0 4px 14px rgba(0,0,0,0.08);
+        }
+
+        .brand {
+
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-logo {
+
+            width: 44px;
+            height: 44px;
+
+            border-radius: 12px;
+
+            background:
+                rgba(255,255,255,0.12);
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 22px;
+        }
+
+        .brand-title {
+
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .brand-subtitle {
+
+            font-size: 12px;
+
+            opacity: 0.82;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Layout
+        |--------------------------------------------------------------------------
+        */
+        .app-layout {
+
+            padding: 28px;
+        }
+
+        .profile-sidebar {
+
+            background: white;
+
+            border-radius: 24px;
+
+            overflow: hidden;
+
+            box-shadow:
+                0 8px 24px rgba(0,0,0,0.05);
+        }
+
+        .profile-cover {
+
+            height: 120px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--primary-bg),
+                    var(--secondary-bg)
+                );
+        }
+
+        .profile-body {
+
+            padding: 0 28px 28px;
+
+            text-align: center;
+        }
+
+        .profile-photo {
+
+            width: 130px;
+            height: 130px;
+
+            border-radius: 50%;
+
+            object-fit: cover;
+
+            border: 6px solid white;
+
+            margin-top: -65px;
+
+            background: #efefef;
+        }
+
+        .member-name {
+
+            font-size: 26px;
+            font-weight: 700;
+
+            margin-top: 18px;
+        }
+
+        .member-number {
+
+            color: #777;
+
+            margin-top: 6px;
+        }
+
+        .member-status {
+
+            display: inline-block;
+
+            margin-top: 18px;
+
+            padding: 10px 18px;
+
+            border-radius: 999px;
+
+            background:
+                #fff4f3;
+
+            color:
+                var(--primary-bg);
+
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .sidebar-actions {
+
+            margin-top: 28px;
+
+            display: grid;
+
+            gap: 12px;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Dashboard Panels
+        |--------------------------------------------------------------------------
+        */
+        .dashboard-panel {
+
+            background: white;
+
+            border-radius: 24px;
+
+            padding: 28px;
+
+            box-shadow:
+                0 8px 24px rgba(0,0,0,0.05);
+
+            margin-bottom: 24px;
+        }
+
+        .panel-title {
+
+            font-size: 20px;
+            font-weight: 700;
+
+            margin-bottom: 24px;
+
+            color:
+                var(--primary-bg);
+
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Form
+        |--------------------------------------------------------------------------
+        */
+        .form-label {
+
+            font-weight: 600;
+
+            margin-bottom: 8px;
+
+            color: #444;
+        }
+
+        .form-control,
+        .form-select {
+
+            border-radius: 14px;
+
+            border:
+                1px solid #dcdcdc;
+
+            padding: 12px 14px;
+
+            min-height: 50px;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+
+            border-color:
+                var(--primary-bg);
+
+            box-shadow:
+                0 0 0 0.2rem rgba(149,21,15,0.12);
+        }
+
+        textarea.form-control {
+
+            min-height: 120px;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Statistics
+        |--------------------------------------------------------------------------
+        */
+        .stats-card {
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #fff,
+                    #fff6f5
+                );
+
+            border-radius: 18px;
+
+            padding: 20px;
+
+            border:
+                1px solid #f1e2e0;
+        }
+
+        .stats-label {
+
+            font-size: 12px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.5px;
+
+            color: #777;
+        }
+
+        .stats-value {
+
+            font-size: 28px;
+            font-weight: 800;
+
+            margin-top: 8px;
+
+            color:
+                var(--primary-bg);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Loading
+        |--------------------------------------------------------------------------
+        */
+        .loading-overlay {
+
+            position: fixed;
+
+            inset: 0;
+
+            background:
+                rgba(255,255,255,0.7);
+
+            display: none;
+
+            align-items: center;
+            justify-content: center;
+
+            z-index: 9999;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Responsive
+        |--------------------------------------------------------------------------
+        */
+        @media(max-width: 992px) {
+
+            .app-layout {
+
+                padding: 18px;
+            }
+
+            .dashboard-panel {
+
+                padding: 22px;
+            }
+        }
+
+    </style>
+
 </head>
 <body>
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-9">
-            <div class="card shadow-sm">
-                <div class="card-body p-4 p-lg-5">
-                    <div class="d-flex justify-content-between align-items-start mb-4">
-                        <div>
-                            <a href="member.php?id=<?php echo htmlspecialchars($memberId); ?>"><-- go back</a>
-                            <h2 class="mb-1">Edit Member</h2>
-                            <p class="text-muted mb-0">Update member details and manage membership documents.</p>
-                        </div>
-                        <span class="badge text-bg-secondary" id="memberIdBadge">ID: -</span>
-                    </div>
+<!-- TOPBAR -->
+<div class="topbar">
 
-                    <div id="pageAlert" class="alert alert-warning d-none"></div>
-                    <div id="result" class="mb-3"></div>
+    <div class="brand">
+        <div class="brand-logo">
+            <!-- <i class="bi bi-mortarboard-fill"></i> -->
+             <!-- <i class="bi bi-pencil-square"></i> -->
+            <img src="/assets/images/ssckpca.png" alt="Logo" class="img-fluid" style="">
+        </div>
 
-                    <form id="memberEditForm">
-                        <input type="hidden" id="member_id" value="<?php echo htmlspecialchars($memberId); ?>">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label" for="first_name">First Name</label>
-                                <input type="text" class="form-control" id="first_name" name="first_name" required>
-                            </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label" for="last_name">Last Name</label>
-                                <input type="text" class="form-control" id="last_name" name="last_name" required>
-                            </div>
+        <div>
 
-                            <div class="col-12">
-                                <label class="form-label" for="full_name">Full Name</label>
-                                <input type="text" class="form-control" id="full_name" name="full_name" required>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label" for="email">Email</label>
-                                <input type="email" class="form-control" id="email" name="email">
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label" for="phone">Phone</label>
-                                <input type="text" class="form-control" id="phone" name="phone">
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label" for="batch_year">Batch Year</label>
-                                <input type="number" class="form-control" id="batch_year" name="batch_year">
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label" for="gender">Gender</label>
-                                <select class="form-select" id="gender" name="gender">
-                                    <option value="">Select gender</option>
-                                    <option value="male">Male</option>
-                                    <option value="female">Female</option>
-                                    <option value="other">Other</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label" for="status">Status</label>
-                                <select class="form-select" id="status" name="status">
-                                    <option value="active">Active</option>
-                                    <option value="inactive">Inactive</option>
-                                    <option value="pending">Pending</option>
-                                </select>
-                            </div>
-
-                            <div class="col-12 mt-4">
-                                <h5 class="border-bottom pb-2 mb-0">Profile Information</h5>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label" for="birthday">Birthday</label>
-                                <input type="date" class="form-control" id="birthday" name="birthday">
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label" for="nic">NIC</label>
-                                <input type="text" class="form-control" id="nic" name="nic" maxlength="20">
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label" for="al_batch_year">A/L Batch Year</label>
-                                <input type="text" class="form-control" id="al_batch_year" name="al_batch_year">
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label" for="membership_year">Membership Year</label>
-                                <input type="text" class="form-control" id="membership_year" name="membership_year">
-                            </div>
-
-                            <div class="col-12">
-                                <label class="form-label" for="cricket_years">Represented Years for College Cricket</label>
-                                <input type="text" class="form-control" id="cricket_years" name="cricket_years">
-                                <small class="text-muted">Enter years separated by commas.</small>
-                            </div>
-
-                            <div class="col-12">
-                                <label class="form-label" for="address">Address</label>
-                                <textarea class="form-control" id="address" name="address" rows="3"></textarea>
-                            </div>
-
-                            <div class="col-12">
-                                <label class="form-label" for="address">Membership Status:</label>
-                                <div class="info-value" id="payment-status"></div>
-                            </div>
-
-                            <div class="col-12 pt-2">
-                                <!-- <button type="submit" class="btn btn-primary px-4">Update Member</button> -->
-                            </div>
-
-                            <div class="col-12 pt-2">
-                                <div class="action-row">
-                                    <!-- <button
-                                        type="button"
-                                        class="btn btn-outline-primary"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#membershipModal"
-                                    >
-                                        Membership
-                                    </button>
-                                    <button
-                                        type="button"
-                                        class="btn btn-outline-secondary"
-                                        id="contributionsButton"
-                                    >
-                                        Contributions
-                                    </button> -->
-
-<div class="col-5">
-<button type="button" class="btn btn-outline-primary w-100 py-2 mt-2" data-bs-toggle="modal" data-bs-target="#membershipModal">
-Membership Fee
-</button>
-</div>
-
-<div class="col-5">
-<button type="button" class="btn btn-secondary w-100 py-2 mt-2" onclick="window.location.href='member-contributions-form.php?id=<?php echo htmlspecialchars($memberId); ?>'">
-Contributions
-</button>
-</div>
-
-<div class="col-5">
-<button type="button" class="btn w-100 py-2 mt-2 btn-danger" onclick="">
-Revoke membership
-</button>
-</div>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+            <div class="brand-title">
+                PCA Member Portal
             </div>
+
+            <div class="brand-subtitle">
+                Member Information Management Workspace
+            </div>
+
         </div>
+
     </div>
+
+    <div>
+
+        <button
+            class="btn btn-light"
+            onclick="history.back()"
+        >
+            <i class="bi bi-arrow-left"></i>
+            Back
+        </button>
+
+    </div>
+
 </div>
 
-<div class="modal fade" id="membershipModal" tabindex="-1" aria-labelledby="membershipModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form id="memebrFeePaymentForm" enctype="multipart/form-data">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="membershipModalLabel">Membership Payment Evidence</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="membershipResult"></div>
-                    <div class="mb-3">
-                        <label class="form-label" for="membership-bankslip-file">Upload Payment Evidence</label>
-                        <input
-                            type="file"
-                            class="form-control"
-                            id="membership-bankslip-file"
-                            name="membership-bankslip-file"
-                            accept=".pdf,.jpg,.jpeg,.png,.webp"
-                            required
-                        >
+<!-- APP -->
+<div class="app-layout">
+
+    <div class="row g-4">
+
+        <!-- SIDEBAR -->
+        <div class="col-lg-4">
+
+            <div class="profile-sidebar">
+
+                <div class="profile-cover"></div>
+
+                <div class="profile-body">
+
+                    <img
+                        id="profile-photo-preview"
+                        class="profile-photo"
+                        src="https://via.placeholder.com/130"
+                    >
+
+                    <div
+                        class="member-name"
+                        id="member-name-preview"
+                    >
+                        Loading...
                     </div>
+
+                    <div
+                        class="member-number"
+                        id="member-number-preview"
+                    >
+                    </div>
+
+                    <div
+                        class="member-status"
+                        id="member-status-preview"
+                    >
+                    </div>
+
+                    <div class="sidebar-actions">
+
+                        <button
+                            type="button"
+                            class="btn btn-primary-theme"
+                            onclick="submitMemberForm()"
+                        >
+                            <i class="bi bi-save"></i>
+                            Save Changes
+                        </button>
+
+                        <!-- <button
+                            type="button"
+                            class="btn btn-secondary-theme"
+                            onclick="resetFormData()"
+                        >
+                            <i class="bi bi-arrow-clockwise"></i>
+                            Reset Form
+                        </button> -->
+
+                    </div>
+
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                    <button id="upload-payment-record" type="button" class="btn btn-primary" onclick="uploadPaymentRec();">Upload</button>
+
+            </div>
+
+            <!-- STATS -->
+            <div class="dashboard-panel mt-4">
+
+                <div class="panel-title">
+                    <i class="bi bi-file-lock-fill"></i>
+                    Locked Items
                 </div>
-            </form>
+
+                <!-- <div class="stats-card mb-3">
+                    <div class="stats-label">
+                        Membership Year
+                    </div>
+                    <div
+                        class="stats-value"
+                        id="membership-year-stat"
+                    >
+                        -
+                    </div>
+
+                </div> -->
+
+                <!-- <div class="stats-card">
+
+                    <div class="stats-label">
+                        Batch Year
+                    </div>
+
+                    <div
+                        class="stats-value"
+                        id="batch-year-stat"
+                    >
+                        -
+                    </div>
+
+                </div> -->
+
+            </div>
+
         </div>
+
+        <!-- MAIN -->
+        <div class="col-lg-8">
+
+            <!-- PERSONAL -->
+            <div class="dashboard-panel">
+
+                <div class="panel-title">
+
+                    <i class="bi bi-person-badge"></i>
+
+                    Personal Information
+
+                </div>
+
+                <form id="member-form">
+
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                First Name
+                            </label>
+
+                            <input
+                                type="text"
+                                id="first_name"
+                                class="form-control"
+                            >
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Last Name
+                            </label>
+
+                            <input
+                                type="text"
+                                id="last_name"
+                                class="form-control"
+                            >
+
+                        </div>
+
+                        <div class="col-12">
+
+                            <label class="form-label">
+                                Full Name
+                            </label>
+
+                            <input
+                                type="text"
+                                id="full_name"
+                                class="form-control"
+                            >
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Email Address
+                            </label>
+
+                            <input
+                                type="email"
+                                id="email"
+                                class="form-control"
+                            >
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Phone Number
+                            </label>
+
+                            <input
+                                type="text"
+                                id="phone"
+                                class="form-control"
+                            >
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                NIC
+                            </label>
+
+                            <input
+                                type="text"
+                                id="nic"
+                                class="form-control"
+                            >
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Birthday
+                            </label>
+
+                            <input
+                                type="date"
+                                id="birthday"
+                                class="form-control"
+                            >
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Gender
+                            </label>
+
+                            <select
+                                id="gender"
+                                class="form-select"
+                            >
+                                <option value="">
+                                    Select Gender
+                                </option>
+
+                                <option value="male">
+                                    Male
+                                </option>
+
+                                <option value="female">
+                                    Female
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Status
+                            </label>
+
+                            <select
+                                id="status"
+                                class="form-select"
+                            >
+                                <option value="active">
+                                    Active
+                                </option>
+
+                                <option value="inactive">
+                                    Inactive
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+            <!-- MEMBERSHIP -->
+            <div class="dashboard-panel">
+
+                <div class="panel-title">
+
+                    <i class="bi bi-mortarboard"></i>
+
+                    Membership Information
+
+                </div>
+
+                <div class="row g-4">
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Member Number
+                        </label>
+
+                        <input
+                            type="text"
+                            id="member_no"
+                            class="form-control"
+                        >
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Membership Year
+                        </label>
+
+                        <input
+                            type="number"
+                            id="membership_year"
+                            class="form-control"
+                        >
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Batch Year
+                        </label>
+
+                        <input
+                            type="number"
+                            id="batch_year"
+                            class="form-control"
+                        >
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Cricket Years
+                        </label>
+
+                        <input
+                            type="text"
+                            id="cricket_years"
+                            class="form-control"
+                            placeholder="2000,2001,2002"
+                        >
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ADDRESS -->
+            <div class="dashboard-panel">
+
+                <div class="panel-title">
+
+                    <i class="bi bi-geo-alt"></i>
+
+                    Address Information
+
+                </div>
+
+                <label class="form-label">
+                    Address
+                </label>
+
+                <textarea
+                    id="address"
+                    class="form-control"
+                ></textarea>
+
+            </div>
+
+        </div>
+
     </div>
+
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    const memberId = document.getElementById('member_id').value;
-    const pageAlert = document.getElementById('pageAlert');
-    const result = document.getElementById('result');
-    const memberEditForm = document.getElementById('memberEditForm');
-    const membershipForm = document.getElementById('membershipForm');
-    const membershipResult = document.getElementById('membershipResult');
-    const membershipModal = document.getElementById('membershipModal');
-    const modalInstance = bootstrap.Modal.getOrCreateInstance(membershipModal);
-    const currentYear = new Date().getFullYear();
+<!-- LOADING -->
+<div
+    id="loading-overlay"
+    class="loading-overlay"
+>
 
+    <div
+        class="spinner-border text-danger"
+        role="status"
+    >
+    </div>
+
+</div>
+
+<script>
+
+const memberId =
+    "<?php echo htmlspecialchars($memberId); ?>";
+
+let originalMemberData = null;
+
+/*
+|--------------------------------------------------------------------------
+| Initialize
+|--------------------------------------------------------------------------
+*/
+document.addEventListener(
+    'DOMContentLoaded',
+    async function () {
+
+        await loadMember();
+    }
+);
+
+/*
+|--------------------------------------------------------------------------
+| Load Member
+|--------------------------------------------------------------------------
+*/
+async function loadMember()
+{
+    try {
+
+        showLoading();
+
+        const response =
+            await fetch(`/v1/member/${memberId}`);
+
+        const result =
+            await response.json();
+
+        const member =
+            result.data;
+
+        originalMemberData = member;
+
+        populateForm(member);
+
+        hideLoading();
+
+    } catch (error) {
+
+        console.error(error);
+
+        hideLoading();
+
+        alert(
+            'Unable to load member information'
+        );
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Populate Form
+|--------------------------------------------------------------------------
+*/
+function populateForm(member)
+{
     const fields = [
+
         'first_name',
         'last_name',
         'full_name',
         'email',
         'phone',
-        'batch_year',
+        'nic',
+        'birthday',
         'gender',
         'status',
-        'birthday',
-        'nic',
-        'al_batch_year',
+        'member_no',
         'membership_year',
+        'batch_year',
         'cricket_years',
         'address'
     ];
 
-    function showAlert(message) {
-        pageAlert.textContent = message;
-        pageAlert.classList.remove('d-none');
-    }
+    fields.forEach(function(field) {
 
-    function setValue(id, value) {
-        const element = document.getElementById(id);
-        if (!element) {
-            return;
+        const element =
+            document.getElementById(field);
+
+        if (element) {
+
+            element.value =
+                member[field] || '';
         }
+    });
 
-        element.value = value ?? '';
+    document.getElementById(
+        'member-name-preview'
+    ).innerHTML =
+        member.full_name || '-';
+
+    document.getElementById(
+        'member-number-preview'
+    ).innerHTML =
+        member.member_no || '-';
+
+    document.getElementById(
+        'member-status-preview'
+    ).innerHTML =
+        (member.status || '').toUpperCase();
+
+    document.getElementById(
+        'membership-year-stat'
+    ).innerHTML =
+        member.membership_year || '-';
+
+    document.getElementById(
+        'batch-year-stat'
+    ).innerHTML =
+        member.batch_year || '-';
+
+    if (member.profile_photo) {
+
+        document.getElementById(
+            'profile-photo-preview'
+        ).src =
+            member.profile_photo;
     }
+}
 
-    function fillMemberForm(member) {
-        document.getElementById('memberIdBadge').textContent = `ID: ${memberId}`;
+/*
+|--------------------------------------------------------------------------
+| Submit
+|--------------------------------------------------------------------------
+*/
+async function submitMemberForm()
+{
+    try {
 
-        fields.forEach((field) => {
-            setValue(field, member[field]);
-        });
-    }
+        showLoading();
 
-    async function loadMember() {
-        if (!memberId) {
-            showAlert('Missing member id. Open this page with a query like member-edit-form.php?id=MEMBER_ID');
-            memberEditForm.querySelectorAll('input, select, textarea, button').forEach((el) => {
-                el.disabled = true;
-            });
-            return;
-        }
+        const payload = {
 
-        try {
-            const response = await fetch(`/v1/member/${memberId}`);
-            const payload = await response.json();
-            if (!response.ok || !payload.success) {
-                throw new Error(payload.message || 'Failed to load member');
-            }
+            first_name:
+                document.getElementById(
+                    'first_name'
+                ).value,
 
-            fillMemberForm(payload.data || {});
-            loadPaymentStatus(memberId);
+            last_name:
+                document.getElementById(
+                    'last_name'
+                ).value,
 
-        } catch (error) {
-            showAlert(error.message);
-        }
-    }
+            full_name:
+                document.getElementById(
+                    'full_name'
+                ).value,
 
-    async function uploadPaymentRec() {
-        const fileInput = document.getElementById('membership-bankslip-file');
+            email:
+                document.getElementById(
+                    'email'
+                ).value,
 
-        const fd = new FormData();
-        fd.append('member-id', memberId);
-        fd.append('membership-bankslip-file', fileInput.files[0]);
-        fd.append('field_key', 'member-fee-payment-record');
-        // memebrFeePaymentForm
-        try {
-            const response = await fetch('/v1/member/upload', {
-                method: 'POST',
-                body: fd
-            });        
+            phone:
+                document.getElementById(
+                    'phone'
+                ).value,
 
-            const data = await response.json();
-                if (response.ok) {
-                    showAlert('File uploaded successfully.');
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('membershipModal'));
-                    modal.hide();
-                    document.getElementById('membershipModal').inert = true;
-                    pageAlert.scrollIntoView({ behavior: 'smooth' });
-                    // loadAttachments();
+            nic:
+                document.getElementById(
+                    'nic'
+                ).value,
+
+            birthday:
+                document.getElementById(
+                    'birthday'
+                ).value,
+
+            gender:
+                document.getElementById(
+                    'gender'
+                ).value,
+
+            status:
+                document.getElementById(
+                    'status'
+                ).value,
+
+            member_no:
+                document.getElementById(
+                    'member_no'
+                ).value,
+
+            membership_year:
+                document.getElementById(
+                    'membership_year'
+                ).value,
+
+            batch_year:
+                document.getElementById(
+                    'batch_year'
+                ).value,
+
+            cricket_years:
+                document.getElementById(
+                    'cricket_years'
+                ).value,
+
+            address:
+                document.getElementById(
+                    'address'
+                ).value
+        };
+
+        const response =
+            await fetch(
+                `/v1/member/${memberId}`,
+                {
+                    method: 'PUT',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json'
+                    },
+
+                    body:
+                        JSON.stringify(payload)
                 }
-
-                if (!response.ok) {
-                    throw new Error(data.message || 'Request failed');
-                }
-
-        } catch (error) {
-            showAlert('Error: ' + error.message);
-        }
-
-    }
-
-    async function loadPaymentStatus(memberId)
-    {
-        try {
-
-            const response = await fetch(
-                `/v1/member/${memberId}/payment-status`
             );
 
-            if (!response.ok) {
-                throw new Error('Unable to verify payment');
-            }
+        const result =
+            await response.json();
 
-            const result = await response.json();
+        hideLoading();
 
-            if (!result.success) {
-                throw new Error(result.message || 'Payment check failed');
-            }
+        if (result.success) {
 
-            const payment = result.data;
+            alert(
+                'Member updated successfully'
+            );
 
-            const paymentStatusElement =
-                document.getElementById('payment-status');
+            await loadMember();
 
-            if (payment.paid) {
-                paymentStatusElement.innerHTML =
-                    'Renewed for year ' + currentYear;
-            } else {
+        } else {
 
-                paymentStatusElement.innerHTML =
-                    'NOT RENEWED FOR YEAR ' + currentYear;
-            }
-
-        } catch (error) {
-            console.error(error);
-            document.getElementById('payment-status').innerHTML = 'Unable to verify';
+            alert(
+                result.message ||
+                'Failed to update member'
+            );
         }
+
+    } catch (error) {
+
+        console.error(error);
+
+        hideLoading();
+
+        alert(
+            'Network error occurred'
+        );
     }
+}
 
+/*
+|--------------------------------------------------------------------------
+| Reset
+|--------------------------------------------------------------------------
+*/
+function resetFormData()
+{
+    if (originalMemberData) {
 
+        populateForm(
+            originalMemberData
+        );
+    }
+}
 
-// memberEditForm.addEventListener('submit', async (event) => {
-//     event.preventDefault();
-//     result.innerHTML = '';
+/*
+|--------------------------------------------------------------------------
+| Loading
+|--------------------------------------------------------------------------
+*/
+function showLoading()
+{
+    document.getElementById(
+        'loading-overlay'
+    ).style.display =
+        'flex';
+}
 
-//     if (!memberId) {
-//         showAlert('Missing member id.');
-//         return;
-//     }
+function hideLoading()
+{
+    document.getElementById(
+        'loading-overlay'
+    ).style.display =
+        'none';
+}
 
-//     const payload = {};
-//     fields.forEach((field) => {
-//         payload[field] = document.getElementById(field).value.trim();
-//     });
-
-//     try {
-//         const response = await fetch(`/v1/member/${encodeURIComponent(memberId)}`, {
-//             method: 'PATCH',
-//             headers: {
-//                 'Content-Type': 'application/json'
-//             },
-//             body: JSON.stringify(payload)
-//         });
-
-//         const data = await response.json();
-
-//         if (!response.ok || !data.success) {
-//             throw new Error(data.message || 'Failed to update member');
-//         }
-
-//         result.innerHTML = '<div class="alert alert-success mb-0">Member updated successfully.</div>';
-//         fillMemberForm(data.data || payload);
-//     } catch (error) {
-//         result.innerHTML = `<div class="alert alert-danger mb-0">Error: ${error.message}</div>`;
-//     }
-// });
-
-// membershipForm.addEventListener('submit', async (event) => {
-//     event.preventDefault();
-//     membershipResult.innerHTML = '';
-
-//     if (!memberId) {
-//         membershipResult.innerHTML = '<div class="alert alert-danger">Missing member id.</div>';
-//         return;
-//     }
-
-//     const fileInput = document.getElementById('membership-bankslip-file');
-
-//     if (!fileInput.files.length) {
-//         membershipResult.innerHTML = '<div class="alert alert-danger">Select a file to upload.</div>';
-//         return;
-//     }
-
-//     const fd = new FormData();
-//     fd.append('membership-bankslip-file', fileInput.files[0]);
-
-//     membershipResult.innerHTML = '<div class="alert alert-info">Upload endpoint is not connected yet. File selected and ready for backend integration.</div>';
-// });
-
-// document.getElementById('contributionsButton').addEventListener('click', () => {
-//     result.innerHTML = '<div class="alert alert-secondary mb-0">Contributions action is not connected yet.</div>';
-// });
-
-loadMember();
 </script>
 
 </body>

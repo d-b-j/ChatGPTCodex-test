@@ -48,14 +48,14 @@ class Member
      */
     public function create(array $data): string
     {
-        $sql = "INSERT INTO {$this->table} (id,member_no, status, created_at, updated_at) 
-                VALUES (:id,:member_no, :status, NOW(), NOW())";
+        $sql = "INSERT INTO {$this->table} (member_id,member_no, status, created_at, updated_at) 
+                VALUES (:member_id,:member_no, :status, NOW(), NOW())";
         try {
             $stmt = $this->db->prepare($sql);
-            $id = $data['id'] ?? $this->generateUUID();
+            $id = $data['member_id'] ?? $this->generateUUID();
 
             $stmt->execute([
-                ':id'             => $id,
+                ':member_id'             => $id,
                 ':member_no'      => $data['member_no'] ?? null,
                 ':status'         => $data['status'] ?? 'inactive',
             ]);
@@ -100,11 +100,11 @@ class Member
      */
     public function getById(string $id): ?array
     {
-        $sql = "SELECT * FROM {$this->table} WHERE id = :id LIMIT 1";
+        $sql = "SELECT * FROM {$this->table} WHERE member_id = :member_id LIMIT 1";
 
         try {
             $stmt = $this->db->prepare($sql);
-            $stmt->execute([':id' => $id]);
+            $stmt->execute([':member_id' => $id]);
             $result = $stmt->fetch();
 
             return $result ?: null;
@@ -292,7 +292,6 @@ class Member
                 member_id,
                 birthday,
                 nic,
-                al_batch_year,
                 cricket_years,
                 membership_year,
                 first_name,
@@ -312,7 +311,6 @@ class Member
                 :member_id,
                 :birthday,
                 :nic,
-                :al_batch_year,
                 :cricket_years,
                 :membership_year,
                 :first_name,
@@ -330,7 +328,6 @@ class Member
             ON DUPLICATE KEY UPDATE
                 birthday = VALUES(birthday),
                 nic = VALUES(nic),
-                al_batch_year = VALUES(al_batch_year),
                 cricket_years = VALUES(cricket_years),
                 membership_year = VALUES(membership_year),
                 first_name = VALUES(first_name),
@@ -352,7 +349,6 @@ class Member
             ':member_id'        => $memberId,
             ':birthday'         => $data['birthday'] ?? null,
             ':nic'              => $data['nic'],
-            ':al_batch_year'    => $data['al_batch_year'] ?? null,
             ':cricket_years'    => $data['cricket_years'] ?? null,
             ':membership_year'  => $data['membership_year'] ?? null,
             ':first_name'       => $data['first_name'] ?? null,
@@ -378,12 +374,12 @@ class Member
         $sql = "
             SELECT m.*, p.*
             FROM members m
-            LEFT JOIN member_profiles p ON p.member_id = m.id
-            WHERE m.id = :id
+            LEFT JOIN member_profiles p ON p.member_id = m.member_id
+            WHERE m.member_id = :member_id
         ";
 
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id' => $id]);
+        $stmt->execute([':member_id' => $id]);
 
         $row = $stmt->fetch();
 

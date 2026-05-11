@@ -4,216 +4,784 @@ if (!$memberId) {
     die('Member ID required');
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Member Contributions</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<style>
-/* keep existing styles if present */
-.form-control{
-    background-color: #f8f9fa;
-    border: 1px solid #75797d;
-}
-</style>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Member Contributions</title>
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Bootstrap Icons -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+    <!-- Theme -->
+    <link
+        href="/assets/css/theme.css"
+        rel="stylesheet"
+    >
+
+    <style>
+
+        body {
+
+            background:
+                #f4f6f9;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Topbar
+        |--------------------------------------------------------------------------
+        */
+        .topbar {
+
+            height: 72px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--primary-bg),
+                    var(--secondary-bg)
+                );
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 0 28px;
+
+            color: white;
+
+            box-shadow:
+                0 4px 14px rgba(0,0,0,0.08);
+        }
+
+        .brand {
+
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-logo {
+
+            width: 44px;
+            height: 44px;
+
+            border-radius: 12px;
+
+            background:
+                rgba(255,255,255,0.12);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 22px;
+        }
+
+        .brand-title {
+
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .brand-subtitle {
+
+            font-size: 12px;
+
+            opacity: 0.85;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Layout
+        |--------------------------------------------------------------------------
+        */
+        .page-wrapper {
+
+            padding: 28px;
+        }
+
+        .page-card {
+
+            background: white;
+
+            border-radius: 24px;
+
+            overflow: hidden;
+
+            box-shadow:
+                0 8px 24px rgba(0,0,0,0.05);
+        }
+
+        .page-header {
+
+            padding: 28px 32px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #fff,
+                    #fff5f4
+                );
+
+            border-bottom:
+                1px solid #ececec;
+        }
+
+        .page-title {
+
+            font-size: 28px;
+            font-weight: 700;
+
+            color:
+                var(--primary-bg);
+        }
+
+        .page-subtitle {
+
+            margin-top: 6px;
+
+            color: #777;
+        }
+
+        .page-content {
+
+            padding: 32px;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Member Badge
+        |--------------------------------------------------------------------------
+        */
+        .member-badge {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            padding: 12px 16px;
+
+            border-radius: 14px;
+
+            background:
+                #fff4f3;
+
+            color:
+                var(--primary-bg);
+
+            font-weight: 600;
+
+            margin-bottom: 28px;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Form
+        |--------------------------------------------------------------------------
+        */
+        .form-section {
+
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+
+            font-size: 18px;
+            font-weight: 700;
+
+            margin-bottom: 20px;
+
+            color:
+                var(--primary-bg);
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+        }
+
+        .form-label {
+
+            font-weight: 600;
+
+            margin-bottom: 8px;
+
+            color: #444;
+        }
+
+        .form-control,
+        .form-select {
+
+            border-radius: 14px;
+
+            border:
+                1px solid #dcdcdc;
+
+            padding: 12px 14px;
+
+            min-height: 50px;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+
+            border-color:
+                var(--primary-bg);
+
+            box-shadow:
+                0 0 0 0.2rem rgba(149,21,15,0.12);
+        }
+
+        textarea.form-control {
+
+            min-height: 130px;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Attachment Cards
+        |--------------------------------------------------------------------------
+        */
+        .attachment-card {
+
+            border:
+                1px solid #ececec;
+
+            border-radius: 18px;
+
+            padding: 18px;
+
+            background:
+                #fafafa;
+
+            margin-bottom: 16px;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Buttons
+        |--------------------------------------------------------------------------
+        */
+        .actions {
+
+            display: flex;
+
+            gap: 14px;
+
+            flex-wrap: wrap;
+
+            margin-top: 32px;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Loading
+        |--------------------------------------------------------------------------
+        */
+        .loading-overlay {
+
+            position: fixed;
+
+            inset: 0;
+
+            background:
+                rgba(255,255,255,0.7);
+
+            display: none;
+
+            align-items: center;
+            justify-content: center;
+
+            z-index: 9999;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Responsive
+        |--------------------------------------------------------------------------
+        */
+        @media(max-width: 768px) {
+
+            .page-wrapper {
+
+                padding: 18px;
+            }
+
+            .page-content {
+
+                padding: 22px;
+            }
+
+            .page-header {
+
+                padding: 22px;
+            }
+
+            .page-title {
+
+                font-size: 24px;
+            }
+        }
+
+    </style>
+
 </head>
+<body>
 
-<body class="bg-light">
+<!-- TOPBAR -->
+<div class="topbar">
 
-<div class="container py-5">
-<div class="row justify-content-center">
-<div class="col-lg-10">
+    <div class="brand">
 
-<div class="card shadow border-0 rounded-4">
-<div class="card-body p-4">
-<button onclick="history.back()">Go Back</button>
-<!-- <a href="member.php?id=<?php echo htmlspecialchars($memberId); ?>"><-- go back</a> -->
-<h3 class="mb-4">Member Contributions</h3>
+        <div class="brand-logo">
+            <img src="/assets/images/ssckpca.png" alt="Logo" class="img-fluid" style="">
+        </div>
 
-<!-- EXISTING CONTRIBUTIONS -->
-<div class="mb-4">
-<h5>Existing Contributions</h5>
-<div id="contributionList"></div>
-</div>
+        <div>
 
-<hr>
+            <div class="brand-title">
+                PCA Member Portal
+            </div>
 
-<!-- FORM -->
-<form id="contributionForm" enctype="multipart/form-data">
+            <!-- <div class="brand-subtitle">
+                Member Contribution Management
+            </div> -->
 
-<input type="hidden" id="member_id" value="<?php echo htmlspecialchars($memberId); ?>">
+        </div>
 
-<div class="row g-3">
+    </div>
 
-<div class="col-md-6">
-<label class="form-label">Title</label>
-<input type="text" class="form-control" id="title" required>
-</div>
+    <div>
 
-<div class="col-md-6">
-<label class="form-label">Amount</label>
-<input type="number" class="form-control" id="amount" required>
-</div>
+        <button
+            class="btn btn-light"
+            onclick="history.back()"
+        >
+            <i class="bi bi-arrow-left"></i>
+            Back
+        </button>
 
-<div class="col-12">
-<label class="form-label">Description</label>
-<textarea class="form-control" id="description" rows="3"></textarea>
-</div>
-
-<!-- ATTACHMENTS -->
-<div class="col-12 mt-3">
-<h6>Attachments</h6>
-<div id="attachmentRows"></div>
-
-<button type="button"
-        class="btn btn-sm btn-outline-primary mt-2"
-        onclick="addAttachmentRow()">
-Add Attachment
-</button>
-</div>
-
-<div class="col-12">
-<button class="btn btn-primary w-100 mt-3" id="saveContribution" type="submit" >Save Contribution</button>
-</div>
+    </div>
 
 </div>
-</form>
 
-<div id="msg" class="mt-3"></div>
+<!-- PAGE -->
+<div class="page-wrapper">
+
+    <div class="page-card">
+
+        <!-- HEADER -->
+        <div class="page-header">
+
+            <div class="page-title">
+                Add Contribution
+            </div>
+
+            <div class="page-subtitle">
+                Record member contribution details and supporting documents
+            </div>
+
+        </div>
+
+        <!-- CONTENT -->
+        <div class="page-content">
+
+            <!-- MEMBER -->
+            <div class="member-badge">
+
+                <i class="bi bi-person-badge"></i>
+
+                Member ID:
+                <span id="member-id-label">
+                    <?php echo htmlspecialchars($memberId); ?>
+                </span>
+
+            </div>
+
+            <!-- FORM -->
+            <form id="contribution-form">
+
+                <!-- Contribution Details -->
+                <div class="form-section">
+
+                    <div class="section-title">
+
+                        <i class="bi bi-file-earmark-text"></i>
+
+                        Contribution Details
+
+                    </div>
+
+                    <div class="row g-4">
+
+                        <div class="col-md-8">
+
+                            <label class="form-label">
+                                Contribution Title
+                            </label>
+
+                            <input
+                                type="text"
+                                id="title"
+                                class="form-control"
+                                placeholder="Enter contribution title"
+                                required
+                            >
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                Amount (LKR)
+                            </label>
+
+                            <input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                id="amount"
+                                class="form-control"
+                                placeholder="0.00"
+                                required
+                            >
+
+                        </div>
+
+                        <div class="col-12">
+
+                            <label class="form-label">
+                                Description
+                            </label>
+
+                            <textarea
+                                id="description"
+                                class="form-control"
+                                placeholder="Enter contribution description"
+                            ></textarea>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Attachments -->
+                <div class="form-section">
+
+                    <div
+                        class="d-flex justify-content-between align-items-center mb-4"
+                    >
+
+                        <div class="section-title mb-0">
+
+                            <i class="bi bi-paperclip"></i>
+
+                            Attachments
+
+                        </div>
+
+                        <button
+                            type="button"
+                            class="btn btn-secondary-theme"
+                            onclick="addAttachmentField()"
+                        >
+                            <i class="bi bi-plus-circle"></i>
+                            Add Attachment
+                        </button>
+
+                    </div>
+
+                    <div id="attachments-container">
+
+                        <div class="attachment-card">
+
+                            <label class="form-label">
+                                Attachment File
+                            </label>
+
+                            <input
+                                type="file"
+                                name="attachments[]"
+                                class="form-control"
+                            >
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- ACTIONS -->
+                <div class="actions">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary-theme"
+                    >
+                        <i class="bi bi-save"></i>
+                        Save Contribution
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary-theme"
+                        onclick="resetForm()"
+                    >
+                        <i class="bi bi-arrow-clockwise"></i>
+                        Reset Form
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
 
 </div>
-</div>
 
-</div>
-</div>
+<!-- LOADING -->
+<div
+    id="loading-overlay"
+    class="loading-overlay"
+>
+
+    <div
+        class="spinner-border text-danger"
+        role="status"
+    >
+    </div>
+
 </div>
 
 <script>
-const memberId = document.getElementById('member_id').value;
-const msg = document.getElementById('msg');
-let existingContributions = 0;
 
-let attachIndex = 0;
+const memberId =
+    "<?php echo htmlspecialchars($memberId); ?>";
 
-/* =========================
-   Dynamic Attachment Rows
-========================= */
-function addAttachmentRow() {
-    const html = `
-    <div class="border rounded p-2 mb-2 attachment-row">
-        <div class="row g-2">
-            <div class="col-md-10">
-                <input type="file" class="form-control file" accept=".jpg,.jpeg,.png,.pdf">
-            </div>
-            <div class="col-md-2 text-end">
-                <button type="button" class="btn btn-sm btn-danger"
-                    onclick="this.closest('.attachment-row').remove()">
-                    Remove
-                </button>
-            </div>
+/*
+|--------------------------------------------------------------------------
+| Add Attachment Field
+|--------------------------------------------------------------------------
+*/
+function addAttachmentField()
+{
+    const container =
+        document.getElementById(
+            'attachments-container'
+        );
+
+    const card =
+        document.createElement('div');
+
+    card.className =
+        'attachment-card';
+
+    card.innerHTML = `
+        <div class="d-flex justify-content-between align-items-start mb-3">
+
+            <label class="form-label mb-0">
+                Attachment File
+            </label>
+
+            <button
+                type="button"
+                class="btn btn-sm btn-outline-danger"
+                onclick="removeAttachment(this)"
+            >
+                <i class="bi bi-trash"></i>
+            </button>
+
         </div>
-    </div>`;
-    document.getElementById('attachmentRows')
-        .insertAdjacentHTML('beforeend', html);
+
+        <input
+            type="file"
+            name="attachments[]"
+            class="form-control"
+        >
+    `;
+
+    container.appendChild(card);
 }
 
-// initialize one row
-addAttachmentRow();
-
-/* =========================
-   Load Contributions
-========================= */
-async function loadContributions() {
-    try {
-        const res = await fetch(`/v1/member/${memberId}/contributions`);
-        const data = await res.json();
-
-        let html = '';
-        var nowContributions = existingContributions;
-
-        (data.data || []).forEach(c => {
-            nowContributions++;
-            html += `
-            <div class="border p-3 mb-2 rounded">
-                <strong>${c.title}</strong>
-                <div>Amount: ${c.amount}</div>
-                <div class="text-muted">${c.description || ''}</div>`;
-            attIdx = 0;
-            c.attachments.forEach(a => {
-                html += `<span>attachment ${++attIdx}</span> | `;
-            });
-                html += `<button type="button" class="btn btn-sm btn-warning"
-                    onclick="">Remove</button>`;
-
-            html += `</div>`;
-
-
-        });
-
-        document.getElementById('contributionList').innerHTML = html;
-        existingContributions = nowContributions;
-    } catch (e) {
-        msg.innerHTML = `<div class="alert alert-danger">${e.message}</div>`;
-    }
+/*
+|--------------------------------------------------------------------------
+| Remove Attachment
+|--------------------------------------------------------------------------
+*/
+function removeAttachment(button)
+{
+    button
+        .closest('.attachment-card')
+        .remove();
 }
 
-/* =========================
-   Submit Form
-========================= */
-document.getElementById('contributionForm')
-.addEventListener('submit', async e => {
+/*
+|--------------------------------------------------------------------------
+| Reset Form
+|--------------------------------------------------------------------------
+*/
+function resetForm()
+{
+    document
+        .getElementById(
+            'contribution-form'
+        )
+        .reset();
 
-    e.preventDefault();
+    document.getElementById(
+        'attachments-container'
+    ).innerHTML = `
+        <div class="attachment-card">
 
-    const fd = new FormData();
+            <label class="form-label">
+                Attachment File
+            </label>
 
-    contributionID = (existingContributions + 1);
+            <input
+                type="file"
+                name="attachments[]"
+                class="form-control"
+            >
 
-    fd.append('member_id', memberId);
-    fd.append('contribution_id', contributionID);
-    fd.append('title', document.getElementById('title').value);
-    fd.append('description', document.getElementById('description').value);
-    fd.append('amount', document.getElementById('amount').value);
-    fd.append('field_key', memberId + '_contribution_' + contributionID );
+        </div>
+    `;
+}
 
+/*
+|--------------------------------------------------------------------------
+| Submit Form
+|--------------------------------------------------------------------------
+*/
+document
+    .getElementById('contribution-form')
+    .addEventListener(
+        'submit',
+        async function(event) {
 
-    // attachments
-    document.querySelectorAll('.attachment-row').forEach(row => {
-        const file = row.querySelector('.file').files[0];
-        if (!file) return;
+            event.preventDefault();
 
-        fd.append('attachments[]', file);
-    });
+            const loading =
+                document.getElementById(
+                    'loading-overlay'
+                );
 
-    try {
-        const response = await fetch('/v1/member/contribution', {
-            method: 'POST',
-            body: fd
-        });
+            loading.style.display =
+                'flex';
 
-        const data = await response.json();
+            try {
 
-        if (!response.ok) throw new Error(data.error || 'Failed');
+                const formData =
+                    new FormData();
 
-        // console.log(data);
-        msg.innerHTML = `<div class="alert alert-success">Contribution added. Reloading...</div>`;
-        setTimeout(() => {
-            document.getElementById('contributionForm').reset();
-            location.reload();
-        }, 3000);
-        // document.getElementById('attachmentRows').innerHTML = '';
-        // addAttachmentRow();
+                formData.append(
+                    'title',
+                    document.getElementById(
+                        'title'
+                    ).value
+                );
 
-        // loadContributions();
+                formData.append(
+                    'amount',
+                    document.getElementById(
+                        'amount'
+                    ).value
+                );
 
-    } catch (e) {
-        msg.innerHTML = `<div class="alert alert-danger">${e.message}</div>`;
-    }
-});
-loadContributions();
+                formData.append(
+                    'description',
+                    document.getElementById(
+                        'description'
+                    ).value
+                );
+
+                document
+                    .querySelectorAll(
+                        'input[name="attachments[]"]'
+                    )
+                    .forEach(function(input) {
+
+                        if (
+                            input.files.length > 0
+                        ) {
+
+                            formData.append(
+                                'attachments[]',
+                                input.files[0]
+                            );
+                        }
+                    });
+
+                const response =
+                    await fetch(
+                        `/v1/member/${memberId}/contribution`,
+                        {
+                            method: 'POST',
+                            body: formData
+                        }
+                    );
+
+                const result =
+                    await response.json();
+
+                loading.style.display =
+                    'none';
+
+                if (result.success) {
+
+                    alert(
+                        'Contribution saved successfully'
+                    );
+
+                    resetForm();
+
+                } else {
+
+                    alert(
+                        result.message ||
+                        'Failed to save contribution'
+                    );
+                }
+
+            } catch (error) {
+
+                console.error(error);
+
+                loading.style.display =
+                    'none';
+
+                alert(
+                    'Network error occurred'
+                );
+            }
+        }
+    );
+
 </script>
 
 </body>

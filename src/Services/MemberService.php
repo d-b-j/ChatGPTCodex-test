@@ -219,7 +219,6 @@ class MemberService
             'member_id',
             'birthday',
             'nic',
-            'al_batch_year',
             'cricket_years',
             'membership_year',
             'first_name',
