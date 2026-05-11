@@ -707,5 +707,148 @@ class Member
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
+    /**
+     * Get members by status
+     */
+    public function getMembersByStatus(
+        string $status
+    ): array {
+
+        $query = "
+            SELECT
+                m.*,
+
+                mp.member_id,
+                mp.first_name,
+                mp.last_name,
+                mp.full_name,
+                mp.email,
+                mp.phone,
+                mp.batch_year,
+                mp.profile_photo
+
+            FROM members m
+
+            LEFT JOIN member_profiles mp
+                ON mp.member_id = m.member_id
+
+            WHERE m.status = :status
+
+            ORDER BY m.created_at DESC
+        ";
+
+        $stmt =
+            $this->db->prepare($query);
+
+        $stmt->execute([
+            ':status' => $status
+        ]);
+
+        return $stmt->fetchAll(
+            \PDO::FETCH_ASSOC
+        );
+    }
+
+    /**
+     * Get attachment by field key
+     */
+    public function getAttachmentByFieldKey(
+        string $memberId,
+        string $fieldKey
+    ): ?array {
+
+        $query = "
+            SELECT *
+            FROM member_attachments
+            WHERE member_id = :member_id
+            AND field_key = :field_key
+            LIMIT 1
+        ";
+
+        $stmt =
+            $this->db->prepare($query);
+
+        $stmt->execute([
+            ':member_id' => $memberId,
+            ':field_key' => $fieldKey
+        ]);
+
+        $result =
+            $stmt->fetch(
+                \PDO::FETCH_ASSOC
+            );
+
+        return $result ?: null;
+    }
+
+
+    /**
+     * Update member status
+     */
+    public function updateMemberStatus(
+        string $memberId,
+        string $status
+    ): bool {
+
+        $query = "
+            UPDATE members
+            SET
+                status = :status,
+                updated_at = NOW()
+            WHERE id = :id
+        ";
+
+        $stmt =
+            $this->connection->prepare($query);
+
+        return $stmt->execute([
+            ':status' => $status,
+            ':id' => $memberId
+        ]);
+    }
+
+    /**
+     * Generate member number
+     */
+    public function generateMemberNumber(): string
+    {
+        $year =
+            date('Y');
+
+        $random =
+            str_pad(
+                (string) random_int(1, 9999),
+                4,
+                '0',
+                STR_PAD_LEFT
+            );
+
+        return 'PCA' . $year . $random;
+    }
+
+    /**
+     * Assign member number
+     */
+    public function assignMemberNumber(
+        string $memberId,
+        string $memberNumber
+    ): bool {
+
+        $query = "
+            UPDATE members
+            SET member_no = :member_no
+            WHERE id = :id
+        ";
+
+        $stmt =
+            $this->connection->prepare($query);
+
+        return $stmt->execute([
+            ':member_no' => $memberNumber,
+            ':id' => $memberId
+        ]);
+    }
+
+
 
 }

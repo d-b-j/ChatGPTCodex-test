@@ -458,6 +458,72 @@ class MemberService
         return $contributions;
     }
 
+    /**
+     * Get members by status
+     */
+    public function getMembersByStatus(
+        string $status
+    ): array {
+
+        return $this->memberModel
+            ->getMembersByStatus($status);
+    }
+
+    /**
+     * Get registration payment receipt
+     */
+    public function getRegistrationPaymentReceipt(
+        string $memberId
+    ): ?array {
+
+        return $this->memberModel
+            ->getAttachmentByFieldKey(
+                $memberId,
+                'member_registration_fee_payment'
+            );
+    }
+
+
+    /**
+     * Register member
+     */
+    public function registerMember(
+        string $memberId
+    ): bool {
+
+        $memberNumber =
+            $this->memberModel
+                ->generateMemberNumber();
+
+        $this->memberModel
+            ->assignMemberNumber(
+                $memberId,
+                $memberNumber
+            );
+
+        return $this->memberModel
+            ->updateMemberStatus(
+                $memberId,
+                'active'
+            );
+    }
+
+    /**
+     * Reject member
+     */
+    public function rejectMember(
+        string $memberId
+    ): bool {
+
+        return $this->memberModel
+            ->updateMemberStatus(
+                $memberId,
+                'rejected'
+            );
+    }
+
+
+
 }
 
 

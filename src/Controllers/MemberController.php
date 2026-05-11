@@ -689,6 +689,243 @@ class MemberController
         }
     }    
 
+    /**
+     * Output attachment image
+     */
+    private function outputAttachmentImage(
+        array $attachment
+    ): void {
+
+        if (
+            empty($attachment['file_path']) ||
+            !file_exists($attachment['file_path'])
+        ) {
+
+            http_response_code(404);
+
+            echo json_encode([
+                'success' => false,
+                'message' => 'Attachment file not found'
+            ]);
+
+            exit;
+        }
+
+        $mimeType =
+            mime_content_type(
+                $attachment['file_path']
+            );
+
+        header(
+            'Content-Type: ' . $mimeType
+        );
+
+        header(
+            'Content-Length: ' .
+            filesize($attachment['file_path'])
+        );
+
+        readfile(
+            $attachment['file_path']
+        );
+
+        exit;
+    }
+
+
+    /**
+     * GET /v1/member/status/{status}
+     */
+    public function getMembersByStatus(
+        string $status
+    ): void {
+
+        try {
+
+            $members =
+                $this->memberService
+                    ->getMembersByStatus(
+                        $status
+                    );
+
+            echo json_encode([
+                'success' => true,
+
+                'message' =>
+                    'Members retrieved successfully',
+
+                'data' => $members,
+
+                'timestamp' =>
+                    date('c')
+            ]);
+
+        } catch (\Throwable $e) {
+
+            http_response_code(500);
+
+            echo json_encode([
+                'success' => false,
+
+                'message' =>
+                    $e->getMessage()
+            ]);
+        }
+    }
+
+
+    /**
+     * GET /v1/member/{id}/registration-payment-receipt
+     */
+    public function registrationPaymentReceipt(
+        string $memberId
+    ): void {
+
+        try {
+
+            $attachment =
+                $this->memberService
+                    ->getRegistrationPaymentReceipt(
+                        $memberId
+                    );
+
+            if (!$attachment) {
+
+                http_response_code(404);
+
+                echo json_encode([
+                    'success' => false,
+
+                    'message' =>
+                        'Missing Registration Fee Payment Record'
+                ]);
+
+                exit;
+            }
+
+            $this->outputAttachmentImage(
+                $attachment
+            );
+
+        } catch (\Throwable $e) {
+
+            http_response_code(500);
+
+            echo json_encode([
+                'success' => false,
+
+                'message' =>
+                    $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * POST /v1/member/{id}/register
+     */
+    public function registerMember(
+        string $memberId
+    ): void {
+
+        try {
+
+            $success =
+                $this->memberService
+                    ->registerMember(
+                        $memberId
+                    );
+
+            echo json_encode([
+                'success' => $success,
+
+                'message' =>
+                    $success
+                        ? 'Member registered successfully'
+                        : 'Failed to register member',
+
+                'timestamp' =>
+                    date('c')
+            ]);
+
+        } catch (\Throwable $e) {
+
+            http_response_code(500);
+
+            echo json_encode([
+                'success' => false,
+
+                'message' =>
+                    $e->getMessage()
+            ]);
+        }
+    }
+
+
+    /**
+     * POST /v1/member/{id}/reject
+     */
+    public function rejectMember(
+        string $memberId
+    ): void {
+
+        try {
+
+            $success =
+                $this->memberService
+                    ->rejectMember(
+                        $memberId
+                    );
+
+            echo json_encode([
+                'success' => $success,
+
+                'message' =>
+                    $success
+                        ? 'Member rejected successfully'
+                        : 'Failed to reject member',
+
+                'timestamp' =>
+                    date('c')
+            ]);
+
+        } catch (\Throwable $e) {
+
+            http_response_code(500);
+
+            echo json_encode([
+                'success' => false,
+
+                'message' =>
+                    $e->getMessage()
+            ]);
+        }
+    }
+
+
+    /**
+     * POST /v1/member/{id}/message
+     */
+    public function messageMember(
+        string $memberId
+    ): void {
+
+        echo json_encode([
+            'success' => true,
+
+            'message' =>
+                'Messaging workflow placeholder',
+
+            'data' => [
+                'member_id' => $memberId
+            ],
+
+            'timestamp' =>
+                date('c')
+        ]);
+    }
+
+
+
 ///////////// FILE UPLOAD
 
 

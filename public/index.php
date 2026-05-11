@@ -225,14 +225,29 @@ function handleMemberRequest($method, $id = null, $action = null)
     try {
         switch ($method) {
             case 'POST':
-                // if (empty($id)) {
-                //     if( isset($_POST['member-id']) ){
-                //         $id = $_POST['member-id'];
-                //     } else {
-                //     \App\Helpers\Response::error('Invalid request - @index.php', 400);
-                //     return;
-                //     }
-                // }
+                // ============================================================
+                // POST /v1/member/{id}/register
+                // ============================================================
+                if ($action === 'register') {
+                    $controller->registerMember($id);
+                    exit;
+                }
+
+                // ============================================================
+                // POST /v1/member/{id}/reject
+                // ============================================================
+                if ($action === 'reject') {
+                    $controller->rejectMember($id);
+                    exit;
+                }
+
+                // ============================================================
+                // POST /v1/member/{id}/message
+                // ============================================================
+                if ($action === 'message') {
+                    $controller->messageMember($id);
+                    exit;
+                }
 
                 // \App\Helpers\Response::success(
                 //     [
@@ -244,6 +259,7 @@ function handleMemberRequest($method, $id = null, $action = null)
                 //     'Member created successfully',
                 //     201
                 // ); 
+
 
                 // Request::POST >> /v1/member/{id}/attachments
                 if ( strpos( URL_PATH , '/v1/member/upload') !== false ) {
@@ -272,6 +288,30 @@ function handleMemberRequest($method, $id = null, $action = null)
                     return;
                 }
 
+                // ============================================================
+                // GET /v1/member/status/{status}
+                // ============================================================
+                if ($id === 'status') {
+                    $controller->getMembersByStatus(
+                        $action
+                    );
+                    exit;
+                }
+
+                // ============================================================
+                // GET /v1/member/{id}/registration-payment-receipt
+                // ============================================================
+                if ($action === 'registration-payment-receipt') {
+                    $controller->registrationPaymentReceipt($id);
+                    return;
+                }
+
+                // \App\Helpers\Response::json([
+                //     'success' => true,
+                //     'id' => $id,
+                //     'action' => $action
+                // ]);
+                
                 /*
                 |--------------------------------------------------------------------------
                 | GET /v1/member/{id}/payment-status
