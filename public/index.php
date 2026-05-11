@@ -126,8 +126,12 @@ try {
     $method = $_SERVER['REQUEST_METHOD'];
 
     if ($path === '/start') {
-        require __DIR__ . '/start.php';
-        exit;
+        // require __DIR__ . '/start.php';
+        ob_start(); // Start output buffering
+        include __DIR__ . '/start.php';
+        $content = ob_get_clean(); // Get the output as a string
+        header('Content-Type: text/html; charset=UTF-8');
+        echo $content;
     }
 
     /*
@@ -138,8 +142,11 @@ try {
     | /member?member_id=63de1cc9-4a3d
     */
     if ($path === '/member') {
-        require __DIR__ . '/member.php';
-        exit;
+        ob_start(); // Start output buffering
+        include __DIR__ . '/member.php';
+        $content = ob_get_clean(); // Get the output as a string
+        header('Content-Type: text/html; charset=UTF-8');
+        echo $content;
     }
 
     // Route the request
@@ -225,11 +232,28 @@ function handleMemberRequest($method, $id = null, $action = null)
     try {
         switch ($method) {
             case 'POST':
+
+                // ============================================================
+                // POST /v1/member/membership-request
+                // ============================================================
+                if ($id === 'membership-request') {
+                    $controller->create();
+                    exit;
+                }                   
+
+                // ============================================================
+                // POST /v1/member/{id}/contribution
+                // ============================================================
+                if ($action === 'contribution') {
+                    // $controller->createContribution();
+                    exit;
+                }                
+
                 // ============================================================
                 // POST /v1/member/{id}/register
                 // ============================================================
                 if ($action === 'register') {
-                    $controller->registerMember($id);
+                    // $controller->registerMember($id);
                     exit;
                 }
 
@@ -237,7 +261,7 @@ function handleMemberRequest($method, $id = null, $action = null)
                 // POST /v1/member/{id}/reject
                 // ============================================================
                 if ($action === 'reject') {
-                    $controller->rejectMember($id);
+                    // $controller->rejectMember($id);
                     exit;
                 }
 
@@ -245,42 +269,37 @@ function handleMemberRequest($method, $id = null, $action = null)
                 // POST /v1/member/{id}/message
                 // ============================================================
                 if ($action === 'message') {
-                    $controller->messageMember($id);
+                    // $controller->messageMember($id);
                     exit;
                 }
 
-                // \App\Helpers\Response::success(
-                //     [
-                //         'post' => $_POST,
-                //         'file_upload' => FILES_INBOUND,
-                //         'url_path' => URL_PATH,
-                //         'resulting' => strpos( URL_PATH , '/v1/member/upload')
-                //     ],
-                //     'Member created successfully',
-                //     201
-                // ); 
+                // \App\Helpers\Response::json([
+                //     'success' => true,
+                //     'id' => $id,
+                //     'action' => $action
+                // ]);
 
 
-                // Request::POST >> /v1/member/{id}/attachments
-                if ( strpos( URL_PATH , '/v1/member/upload') !== false ) {
-                    $uploadType = '';
-                    if ( FILES_INBOUND_KEY !== null ){
-                        $uploadType = FILES_INBOUND_KEY;
-                    }
-                        switch ($uploadType) {
-                            case 'member-fee-payment-record':
-                                $controller->memberFeePayment();
-                                break;
-                            default:
-                                /// nothing
-                                break;
-                        }
-                } elseif ( strpos( URL_PATH , '/v1/member/contribution') !== false ) {
-                    $controller->createContribution();
-                } else {
-                    $controller->create();
-                }
-                break;
+                // // Request::POST >> /v1/member/{id}/attachments
+                // if ( strpos( URL_PATH , '/v1/member/upload') !== false ) {
+                //     $uploadType = '';
+                //     if ( FILES_INBOUND_KEY !== null ){
+                //         $uploadType = FILES_INBOUND_KEY;
+                //     }
+                //         switch ($uploadType) {
+                //             case 'member-fee-payment-record':
+                //                 $controller->memberFeePayment();
+                //                 break;
+                //             default:
+                //                 /// nothing
+                //                 break;
+                //         }
+                // } elseif ( strpos( URL_PATH , '/v1/member/contribution') !== false ) {
+                //     $controller->createContribution();
+                // } else {
+                //     $controller->create();
+                // }
+                // break;
 
             case 'GET':
                 if (empty($id)) {

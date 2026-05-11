@@ -837,7 +837,7 @@ class Member
         $query = "
             UPDATE members
             SET member_no = :member_no
-            WHERE id = :id
+            WHERE member_id = :member_id
         ";
 
         $stmt =
@@ -845,7 +845,7 @@ class Member
 
         return $stmt->execute([
             ':member_no' => $memberNumber,
-            ':id' => $memberId
+            ':member_id' => $memberId
         ]);
     }
 

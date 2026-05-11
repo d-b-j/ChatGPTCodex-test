@@ -401,6 +401,258 @@
             }
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Small Pending Meta
+        |--------------------------------------------------------------------------
+        */
+        .pending-meta {
+
+            font-size: 13px;
+
+            color: #777;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Modal Styling
+        |--------------------------------------------------------------------------
+        */
+        .modal-content {
+
+            border: none;
+
+            border-radius: 22px;
+
+            overflow: hidden;
+        }
+
+        .modal-header {
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--primary-bg),
+                    var(--secondary-bg)
+                );
+
+            color: white;
+
+            border: none;
+
+            padding: 20px 24px;
+        }
+
+        .modal-title {
+
+            font-weight: 700;
+        }
+
+        .modal-subtitle {
+
+            font-size: 13px;
+
+            opacity: 0.82;
+        }
+
+        .btn-close {
+
+            filter: invert(1);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Table Header
+        |--------------------------------------------------------------------------
+        */
+        .member-table-header {
+
+            display: grid;
+
+            grid-template-columns:
+                2fr
+                1fr
+                1fr
+                1fr
+                120px;
+
+            gap: 14px;
+
+            padding:
+                14px 20px;
+
+            background:
+                #faf4f3;
+
+            border-bottom:
+                1px solid #eee;
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.5px;
+
+            color:
+                var(--primary-bg);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Member List
+        |--------------------------------------------------------------------------
+        */
+        .member-list {
+
+            display: flex;
+
+            flex-direction: column;
+        }
+
+        .member-card {
+
+            display: grid;
+
+            grid-template-columns:
+                2fr
+                1fr
+                1fr
+                1fr
+                120px;
+
+            gap: 14px;
+
+            align-items: center;
+
+            padding:
+                12px 20px;
+
+            border-bottom:
+                1px solid #f3f3f3;
+
+            border-radius: 0;
+
+            transition: 0.2s ease;
+
+            background: white;
+        }
+
+        .member-card:hover {
+
+            background:
+                #fafafa;
+        }
+
+        .member-meta {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+        }
+
+        .member-avatar {
+
+            width: 42px;
+            height: 42px;
+
+            border-radius: 50%;
+
+            object-fit: cover;
+        }
+
+        .member-name {
+
+            font-size: 14px;
+
+            font-weight: 700;
+
+            line-height: 1.2;
+        }
+
+        .member-sub {
+
+            font-size: 12px;
+
+            color: #777;
+        }
+
+        .member-mini {
+
+            font-size: 13px;
+
+            color: #555;
+        }
+
+        .member-status-badge {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding:
+                5px 10px;
+
+            border-radius: 999px;
+
+            background:
+                #fff3cd;
+
+            color:
+                #856404;
+
+            font-size: 12px;
+
+            font-weight: 600;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Small View Button
+        |--------------------------------------------------------------------------
+        */
+        .btn-view-sm {
+
+            padding:
+                5px 12px;
+
+            font-size: 12px;
+
+            border-radius: 10px;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Viewer
+        |--------------------------------------------------------------------------
+        */
+        .profile-photo {
+
+            width: 110px;
+            height: 110px;
+        }
+
+        @media(max-width: 992px) {
+
+            .member-table-header {
+
+                display: none;
+            }
+
+            .member-card {
+
+                grid-template-columns: 1fr;
+
+                gap: 10px;
+            }
+        }
+
+
     </style>
 
 </head>
@@ -446,23 +698,58 @@
 
 <!-- MAIN -->
 <div class="dashboard-layout">
+    <div class="row">
 
-    <!-- STATS -->
-    <div class="row g-4 mb-4">
+        <div class="col-12">
 
-        <div class="col-md-4">
-
-            <div class="stats-card">
-
-                <div class="stats-label">
-                    Pending Memberships
-                </div>
+            <div class="dashboard-panel">
 
                 <div
-                    class="stats-value"
-                    id="pending-count"
+                    class="
+                        d-flex
+                        justify-content-between
+                        align-items-center
+                        flex-wrap
+                        gap-3
+                    "
                 >
-                    0
+
+                    <div>
+
+                        <div class="panel-title mb-1">
+
+                            <i class="bi bi-hourglass-split"></i>
+
+                            Pending Requests
+
+                        </div>
+
+                        <div
+                            class="pending-meta"
+                        >
+
+                            Pending Memberships:
+                            <span id="pending-count">
+                                0
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div>
+
+                        <button
+                            class="btn btn-primary-theme"
+                            onclick="openPendingRequestsModal()"
+                        >
+                            <i class="bi bi-search"></i>
+
+                            Load Pending Requests
+                        </button>
+
+                    </div>
+
                 </div>
 
             </div>
@@ -471,33 +758,83 @@
 
     </div>
 
-    <div class="row g-4">
+</div>
 
-        <!-- LIST -->
-        <div class="col-lg-5">
+<!-- ===================================================== -->
+<!-- PENDING REQUESTS MODAL -->
+<!-- ===================================================== -->
 
-            <div class="dashboard-panel">
+<div
+    class="modal fade"
+    id="pendingRequestsModal"
+    tabindex="-1"
+>
 
-                <div class="panel-title">
+    <div
+        class="
+            modal-dialog
+            modal-xl
+            modal-dialog-scrollable
+        "
+    >
 
-                    <i class="bi bi-hourglass-split"></i>
+        <div class="modal-content">
 
-                    Pending Requests
+            <div class="modal-header">
+
+                <div>
+
+                    <h5 class="modal-title">
+
+                        Pending Membership Requests
+
+                    </h5>
+
+                    <div class="modal-subtitle">
+
+                        Review and moderate pending
+                        alumni registrations
+
+                    </div>
 
                 </div>
 
-                <div class="d-grid mb-4">
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                ></button>
 
-                    <button
-                        class="btn btn-primary-theme"
-                        onclick="loadPendingMembers()"
-                    >
-                        <i class="bi bi-search"></i>
-                        Load Pending Requests
-                    </button>
+            </div>
+
+            <div class="modal-body p-0">
+
+                <!-- TABLE HEADER -->
+                <div class="member-table-header">
+
+                    <div>
+                        Member
+                    </div>
+
+                    <div>
+                        Member No
+                    </div>
+
+                    <div>
+                        Batch
+                    </div>
+
+                    <div>
+                        Status
+                    </div>
+
+                    <div class="text-end">
+                        Actions
+                    </div>
 
                 </div>
 
+                <!-- LIST -->
                 <div
                     id="member-list"
                     class="member-list"
@@ -507,7 +844,7 @@
 
                         <i
                             class="bi bi-people"
-                            style="font-size:48px;"
+                            style="font-size:40px;"
                         ></i>
 
                         <div class="mt-3">
@@ -522,31 +859,67 @@
 
         </div>
 
-        <!-- DETAILS -->
-        <div class="col-lg-7">
+    </div>
 
-            <div class="dashboard-panel">
+</div>
 
-                <div class="panel-title">
+<!-- ===================================================== -->
+<!-- MEMBER VIEW MODAL -->
+<!-- ===================================================== -->
 
-                    <i class="bi bi-person-lines-fill"></i>
+<div
+    class="modal fade"
+    id="memberViewerModal"
+    tabindex="-1"
+>
 
-                    Member Details
+    <div
+        class="
+            modal-dialog
+            modal-xl
+            modal-dialog-scrollable
+        "
+    >
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <h5 class="modal-title">
+                        Member Review
+                    </h5>
+
+                    <div class="modal-subtitle">
+                        Membership approval workspace
+                    </div>
 
                 </div>
 
-                <div
-                    id="member-viewer"
-                    class="empty-state"
-                >
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                ></button>
 
-                    <i
-                        class="bi bi-person-vcard"
-                        style="font-size:48px;"
-                    ></i>
+            </div>
 
-                    <div class="mt-3">
-                        Select a pending member
+            <div class="modal-body">
+
+                <div id="member-viewer">
+
+                    <div class="empty-state">
+
+                        <i
+                            class="bi bi-person-vcard"
+                            style="font-size:48px;"
+                        ></i>
+
+                        <div class="mt-3">
+                            Select a member
+                        </div>
+
                     </div>
 
                 </div>
@@ -558,6 +931,8 @@
     </div>
 
 </div>
+
+
 
 <!-- LOADING -->
 <div
@@ -580,7 +955,8 @@
 |--------------------------------------------------------------------------
 */
 let currentMember = null;
-
+let pendingRequestsModal = null;
+let memberViewerModal = null;
 /*
 |--------------------------------------------------------------------------
 | Load Pending Members
@@ -649,6 +1025,7 @@ function renderPendingMembers(members)
 
         container.innerHTML = `
             <div class="empty-state">
+
                 <i
                     class="bi bi-check-circle"
                     style="font-size:48px;"
@@ -657,6 +1034,7 @@ function renderPendingMembers(members)
                 <div class="mt-3">
                     No pending requests
                 </div>
+
             </div>
         `;
 
@@ -665,43 +1043,43 @@ function renderPendingMembers(members)
 
     container.innerHTML =
         members.map(member => `
-
-            <div class="member-card">
-
-                <div class="member-meta">
-
-                    <div>
-
-                        <div class="member-name">
-                            ${member.first_name +" "+ member.last_name || 'Unnamed'}
+            <div class="row">
+                <div class="col">
+                    <div class="member-card">
+                        <div class="member-meta">
+                            <div>
+                                <div class="member-name">
+                                ${member.first_name +" "+ member.last_name || '-'}
+                                </div>
+                                <div class="member-sub">
+                                ${member.email || '-'}
+                                </div>
+                            </div>
                         </div>
-
-                        <div class="member-sub">
-                            ${member.email || '-'}
+                        <div class="row member-mini-row">
+                            <div class="col member-mini">
+                                ${member.member_no || '-'}
+                            </div>
+                            <div class="col member-mini">
+                                ${member.batch_year || '-'}
+                            </div>
                         </div>
-
-                        <div class="member-sub">
-                            Batch ${member.batch_year || '-'}
+                        <div class="row member-status-row">
+                            <div class="col">
+                                <span class="member-status-badge">
+                                    Pending
+                                </span>
+                            </div>
+                            <div class="col text-end">
+                                <button class="btn btn-primary-theme btn-view-sm" onclick="viewMember('${member.member_id}')">
+                                    <i class="bi bi-eye"></i>
+                                    View
+                                </button>
+                            </div>
                         </div>
-
                     </div>
-
                 </div>
-
-                <div>
-
-                    <button
-                        class="btn btn-primary-theme"
-                        onclick="viewMember('${member.member_id}')"
-                    >
-                        <i class="bi bi-eye"></i>
-                        View
-                    </button>
-
-                </div>
-
             </div>
-
         `).join('');
 }
 
@@ -743,6 +1121,8 @@ async function viewMember(memberId)
             result.data
         );
 
+        memberViewerModal.show();
+
     } catch (error) {
 
         console.error(error);
@@ -766,16 +1146,14 @@ function renderMemberViewer(member)
         document.getElementById(
             'member-viewer'
         );
-
-    const receiptUrl =
-        `/v1/member/${member.member_id}/registration-payment-receipt`;
+    const memberId = member.member_id;
 
     container.innerHTML = `
 
         <div class="text-center mb-4">
 
             <h3 class="mt-4">
-                ${member.full_name || '-'}
+                ${member.first_name +" "+ member.last_name || '-'}
             </h3>
 
             <div class="text-muted">
@@ -853,7 +1231,15 @@ function renderMemberViewer(member)
             <h5>
                 Registration Fee Receipt
             </h5>
-
+            <img
+                id="reg-receipt-image" 
+                style="
+                    width:100%;
+                    height:100%;
+                    display:none;
+                    object-fit:contain;
+                "
+            >
 
         </div>
 
@@ -885,6 +1271,44 @@ function renderMemberViewer(member)
 
         </div>
     `;
+
+    loadRegFeeReceipt(memberId);
+
+}
+
+
+async function loadRegFeeReceipt(memberId)
+{
+    try {
+
+        const response =
+            await fetch(
+                `/v1/member/${memberId}/registration-payment-receipt`
+            );
+        const blob =
+            await response.blob();
+        const imageUrl =
+            URL.createObjectURL(blob);
+            // console.log(response);
+            // console.log(blob);
+        if (response.ok === false) {
+            return;
+        }    
+        
+        if (blob.size > 100) {
+            document.getElementById(
+                'reg-receipt-image'
+            ).src =
+                imageUrl;
+
+            document.getElementById(
+                'reg-receipt-image'
+            ).style.display =
+                'flex';
+        }
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 /*
@@ -1121,6 +1545,43 @@ async function rejectMember()
 
 /*
 |--------------------------------------------------------------------------
+| Initialize Modals
+|--------------------------------------------------------------------------
+*/
+document.addEventListener(
+    'DOMContentLoaded',
+    () => {
+
+        pendingRequestsModal =
+            new bootstrap.Modal(
+                document.getElementById(
+                    'pendingRequestsModal'
+                )
+            );
+
+        memberViewerModal =
+            new bootstrap.Modal(
+                document.getElementById(
+                    'memberViewerModal'
+                )
+            );
+
+        loadPendingMembers();
+    }
+);
+
+/*
+|--------------------------------------------------------------------------
+| Open Pending Requests Modal
+|--------------------------------------------------------------------------
+*/
+function openPendingRequestsModal()
+{
+    pendingRequestsModal.show();
+}
+
+/*
+|--------------------------------------------------------------------------
 | Loading
 |--------------------------------------------------------------------------
 */
@@ -1148,6 +1609,9 @@ function hideLoading()
 loadPendingMembers();
 
 </script>
+
+<!-- Bootstrap Bundle JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

@@ -565,6 +565,9 @@ if (!$memberId) {
 
 </div>
 
+
+<div id="msg" class="mt-3"></div>
+
 <!-- LOADING -->
 <div
     id="loading-overlay"
@@ -583,6 +586,48 @@ if (!$memberId) {
 
 const memberId =
     "<?php echo htmlspecialchars($memberId); ?>";
+const msg = document.getElementById('msg');
+let contributionsCount = 0;
+
+/* =========================
+   Load Contributions
+========================= */
+async function loadContributions() {
+    // try {
+    //     const res = await fetch(`/v1/member/${memberId}/contributions`);
+    //     const data = await res.json();
+
+    //     let html = '';
+
+    //     (data.data || []).forEach(c => {
+    //         html += `
+    //         <div class="border p-3 mb-2 rounded">
+    //             <strong>${c.title}</strong>
+    //             <div>Amount: ${c.amount}</div>
+    //             <div class="text-muted">${c.description || ''}</div>
+    //         </div>`;
+    //     });
+
+    //     document.getElementById('contributionList').innerHTML = html;
+
+    // } catch (e) {
+    //     msg.innerHTML = `<div class="alert alert-danger">${e.message}</div>`;
+    // }
+
+        const response =
+            await fetch(
+                `/v1/member/${memberId}/contributions`
+            );
+
+        const result =
+            await response.json();
+
+        contributionsCount = result.data.length;
+        console.log(contributionsCount);
+
+}
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -699,6 +744,16 @@ document
                 const formData =
                     new FormData();
 
+                    
+                contributionID = contributionsCount + 1;
+
+                formData.append(
+                    'member_id',
+                    memberId
+                );
+
+                formData.append('contribution_id', contributionID);
+
                 formData.append(
                     'title',
                     document.getElementById(
@@ -719,6 +774,8 @@ document
                         'description'
                     ).value
                 );
+
+                formData.append('field_key', memberId + '_contribution_' + contributionID);
 
                 document
                     .querySelectorAll(
@@ -754,18 +811,27 @@ document
 
                 if (result.success) {
 
-                    alert(
-                        'Contribution saved successfully'
-                    );
+                    msg.innerHTML = `<div class="alert alert-success">Contribution added. Reloading...</div>`;
+                    // alert(
+                    //     'Contribution saved successfully'
+                    // );
 
-                    resetForm();
+                    // resetForm();
+
+                    // msg.innerHTML = `<div class="alert alert-success">Contribution added. Reloading...</div>`;
+                    // setTimeout(() => {
+                    //     document.getElementById('contributionForm').reset();
+                    //     location.reload();
+                    // }, 3000);
+
 
                 } else {
 
-                    alert(
-                        result.message ||
-                        'Failed to save contribution'
-                    );
+                    msg.innerHTML = `<div class="alert alert-danger">Failed to save contribution</div>`;
+                    // alert(
+                    //     result.message ||
+                    //     'Failed to save contribution'
+                    // );
                 }
 
             } catch (error) {
@@ -781,6 +847,8 @@ document
             }
         }
     );
+
+loadContributions();
 
 </script>
 

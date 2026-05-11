@@ -872,7 +872,7 @@ async function submitRegistration()
 
         const response =
             await fetch(
-                '/v1/member/register',
+                '/v1/member/membership-request',
                 {
                     method: 'POST',
                     body: formData

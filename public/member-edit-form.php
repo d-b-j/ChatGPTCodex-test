@@ -855,13 +855,11 @@ async function loadMember()
 
     } catch (error) {
 
-        console.error(error);
-
         hideLoading();
 
-        alert(
-            'Unable to load member information'
-        );
+        // alert(
+        //     'Unable to load member information'
+        // );
     }
 }
 

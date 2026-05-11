@@ -479,7 +479,7 @@ class MemberService
         return $this->memberModel
             ->getAttachmentByFieldKey(
                 $memberId,
-                'member_registration_fee_payment'
+                'member_registration_fee'
             );
     }
 
