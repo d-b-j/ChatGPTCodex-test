@@ -306,8 +306,11 @@ class MemberService
             return false;
         }
 
+        $name = $file['name'];
+
+        $changeName = time() .'_';
         $stored = preg_replace('/[^a-zA-Z0-9._-]/', '_', $name);
-        $stored = time() . '_' . $stored;        
+        $stored = $changeName . $stored;      
 
         $dir = dirname(__DIR__,2) . '/storage/'.date('Y').'/uploads/field_attachments/'.$memberId.'/';
         $filepath = 'storage/'.date('Y').'/uploads/field_attachments/'.$memberId.'/';

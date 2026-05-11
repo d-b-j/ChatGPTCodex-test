@@ -64,7 +64,7 @@ class MemberController
 
             $memberData = [
                 'member_no' => $memberNumber,
-                'status' => 'inactive'
+                'status' => 'pending'
             ];
 
             // Create member profile
@@ -83,14 +83,37 @@ class MemberController
             $member = $this->memberService->create($memberData); 
                 $profile = [];
                 if( isset($member['member_id']) ) {
+
+                $fileupload = []; 
+                    if (FILES_INBOUND != null) {
+                        $files = FILES_INBOUND;
+                        foreach ($files as $inputName => $fileData) {
+                                $fileupload = $this->memberService->saveSingleAttachment(
+                                    $member['member_id'], 
+                                    $fileData, 
+                                    [
+                                        'type' => 'attachment',
+                                        'field_key'     => 'member_registration_fee',
+                                        'field_label'   => 'Member Registration Fee',
+                                        'category'      => null,
+                                        'context_ref'   => null               
+                                    ]
+                                );
+                        }
+                    } else {
+                        $fileupload = [
+                            'message' => 'No files detected in the request'
+                        ];
+                    }
+
                     // Create member profile
                     $profile = $this->memberService->createMemberProfile($member['member_id'], $profileData);
                 }
 
-
                 Response::success(
                     [
                         'member' => $member,
+                        'fileupload' => $fileupload,
                         'profile' => $profile
                     ],
                     'Member created successfully',

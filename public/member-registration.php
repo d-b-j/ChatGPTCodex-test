@@ -699,7 +699,7 @@
 
                     <i class="bi bi-image"></i>
 
-                   Membership Fee
+                   Membership Registration Fee
 
                 </div>
 
@@ -707,13 +707,13 @@
 
                     <input
                         type="file"
-                        id="membership_fee"
+                        id="member_registration_fee"
                         class="form-control"
                         accept="image/*"
                     >
 
                     <div class="mt-3 text-muted">
-                        Membership Fee Payment Record
+                        Registration Fee Payment Record
                     </div>
 
                 </div>
@@ -746,52 +746,52 @@
 | Live Preview
 |--------------------------------------------------------------------------
 */
-document
-    .getElementById('full_name')
-    .addEventListener(
-        'input',
-        function () {
+// document
+//     .getElementById('full_name')
+//     .addEventListener(
+//         'input',
+//         function () {
 
-            document.getElementById(
-                'preview-name'
-            ).innerHTML =
-                this.value || 'New Member';
-        }
-    );
+//             document.getElementById(
+//                 'preview-name'
+//             ).innerHTML =
+//                 this.value || 'New Member';
+//         }
+//     );
 
 /*
 |--------------------------------------------------------------------------
 | Profile Photo Preview
 |--------------------------------------------------------------------------
 */
-document
-    .getElementById('profile_photo')
-    .addEventListener(
-        'change',
-        function(event) {
+// document
+//     .getElementById('profile_photo')
+//     .addEventListener(
+//         'change',
+//         function(event) {
 
-            const file =
-                event.target.files[0];
+//             const file =
+//                 event.target.files[0];
 
-            if (!file) {
-                return;
-            }
+//             if (!file) {
+//                 return;
+//             }
 
-            const reader =
-                new FileReader();
+//             const reader =
+//                 new FileReader();
 
-            reader.onload =
-                function(e) {
+//             reader.onload =
+//                 function(e) {
 
-                    document.getElementById(
-                        'profile-preview'
-                    ).src =
-                        e.target.result;
-                };
+//                     document.getElementById(
+//                         'profile-preview'
+//                     ).src =
+//                         e.target.result;
+//                 };
 
-            reader.readAsDataURL(file);
-        }
-    );
+//             reader.readAsDataURL(file);
+//         }
+//     );
 
 /*
 |--------------------------------------------------------------------------
@@ -859,13 +859,13 @@ async function submitRegistration()
 
         const membershipFee =
             document.getElementById(
-                'membership_fee'
+                'member_registration_fee'
             ).files[0];
 
         if (membershipFee) {
 
             formData.append(
-                'membership_fee',
+                'member_registration_fee',
                 membershipFee
             );
         }
@@ -889,7 +889,6 @@ async function submitRegistration()
             alert(
                 'Member registered successfully'
             );
-// console.log(result);
             // window.location.href =
             //     `/member.php?id=${result.data.id}`;
 
