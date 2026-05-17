@@ -11,6 +11,7 @@
 namespace App\Controllers;
 
 use App\Services\MemberService;
+use App\Services\UserService;
 use App\Helpers\Response;
 use App\Helpers\Logger;
 use InvalidArgumentException;
@@ -23,6 +24,7 @@ class MemberController
      * @var MemberService
      */
     protected MemberService $memberService;
+    protected UserService $userService;
 
     /**
      * Constructor
@@ -30,6 +32,7 @@ class MemberController
     public function __construct()
     {
         $this->memberService = new MemberService();
+        $this->userService = new UserService();
     }
 
     /**
@@ -829,20 +832,34 @@ class MemberController
 
         try {
 
+            $member = $this->memberService
+            ->getById(
+                $memberId
+            );
+
+            if (!$member) {
+                http_response_code(500);
+                echo json_encode([
+                    'success' => false,
+                    'message' =>
+                        'Member could not be load'
+                ]);
+                exit;
+            }
+
             $success =
-                $this->memberService
-                    ->registerMember(
-                        $memberId
+                $this->userService
+                    ->create(
+                        $member
                     );
 
             echo json_encode([
                 'success' => $success,
-
+                'data' => $success,
                 'message' =>
                     $success
                         ? 'Member registered successfully'
                         : 'Failed to register member',
-
                 'timestamp' =>
                     date('c')
             ]);

@@ -652,6 +652,63 @@
             }
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Response Modal
+        |--------------------------------------------------------------------------
+        */
+        .response-icon {
+
+            width: 86px;
+            height: 86px;
+
+            margin: auto;
+
+            border-radius: 50%;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 40px;
+        }
+
+        .response-icon.success {
+
+            background:
+                rgba(25,135,84,0.12);
+
+            color:
+                #198754;
+        }
+
+        .response-icon.error {
+
+            background:
+                rgba(220,53,69,0.12);
+
+            color:
+                #dc3545;
+        }
+
+        .response-extra {
+
+            margin-top: 18px;
+
+            padding: 14px;
+
+            border-radius: 14px;
+
+            background:
+                #faf4f3;
+
+            font-size: 14px;
+
+            text-align: left;
+        }
+
 
     </style>
 
@@ -932,7 +989,75 @@
 
 </div>
 
+<!-- ===================================================== -->
+<!-- RESPONSE FLOATING MODAL -->
+<!-- ===================================================== -->
 
+<div
+    class="modal fade"
+    id="responseModal"
+    tabindex="-1"
+>
+
+    <div
+        class="
+            modal-dialog
+            modal-dialog-centered
+        "
+    >
+
+        <div class="modal-content">
+
+            <div class="modal-body p-4">
+
+                <div class="text-center">
+
+                    <div
+                        id="response-icon"
+                        class="response-icon success"
+                    >
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+
+                    <h4
+                        id="response-title"
+                        class="mt-3"
+                    >
+                        Success
+                    </h4>
+
+                    <div
+                        id="response-message"
+                        class="text-muted mt-2"
+                    >
+                        Action completed
+                    </div>
+
+                    <div
+                        id="response-extra"
+                        class="response-extra"
+                    ></div>
+
+                    <button
+                        class="
+                            btn
+                            btn-primary-theme
+                            mt-4
+                        "
+                        data-bs-dismiss="modal"
+                    >
+                        Close
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 
 <!-- LOADING -->
 <div
@@ -957,6 +1082,7 @@
 let currentMember = null;
 let pendingRequestsModal = null;
 let memberViewerModal = null;
+let responseModal = null;
 /*
 |--------------------------------------------------------------------------
 | Load Pending Members
@@ -1318,77 +1444,80 @@ async function loadRegFeeReceipt(memberId)
 */
 async function registerMember()
 {
-    // if (!currentMember) {
-    //     return;
-    // }
+    if (!currentMember) {
+        return;
+    }
 
-    // const confirmed =
-    //     confirm(
-    //         'Approve and register this member?'
-    //     );
+    const confirmed =
+        confirm(
+            'Approve and register this member?'
+        );
 
-    // if (!confirmed) {
-    //     return;
-    // }
+    if (!confirmed) {
+        return;
+    }
 
-    // try {
+    try {
 
-    //     showLoading();
+        showLoading();
 
-    //     const response =
-    //         await fetch(
-    //             `/v1/member/${currentMember.id}/register`,
-    //             {
-    //                 method: 'POST'
-    //             }
-    //         );
+        const response =
+            await fetch(
+                `/v1/member/${currentMember.id}/register`,
+                {
+                    method: 'POST'
+                }
+            );
 
-    //     const result =
-    //         await response.json();
+        const result =
+            await response.json();
 
-    //     hideLoading();
+        hideLoading();
 
-    //     if (!result.success) {
+        if (!result.success) {
 
-    //         alert(
-    //             result.message ||
-    //             'Registration failed'
-    //         );
+            alert(
+                result.message ||
+                'Registration failed'
+            );
 
-    //         return;
-    //     }
+            return;
+        }
 
-    //     alert(
-    //         'Member registered successfully'
-    //     );
+        alert(
+            'Member registered successfully'
+        );
 
-    //     document.getElementById(
-    //         'member-viewer'
-    //     ).innerHTML = `
-    //         <div class="empty-state">
-    //             <i
-    //                 class="bi bi-check-circle"
-    //                 style="font-size:48px;"
-    //             ></i>
+        document.getElementById(
+            'member-viewer'
+        ).innerHTML = `
+            <div class="empty-state">
+                <i
+                    class="bi bi-check-circle"
+                    style="font-size:48px;"
+                ></i>
 
-    //             <div class="mt-3">
-    //                 Member approved successfully
-    //             </div>
-    //         </div>
-    //     `;
+                <div class="mt-3">
+                    Member approved successfully
+                </div>
+            </div>
+        `;
 
-    //     loadPendingMembers();
+        loadPendingMembers();
 
-    // } catch (error) {
+    } catch (error) {
 
-    //     console.error(error);
-
-    //     hideLoading();
-
-    //     alert(
-    //         'Network error'
-    //     );
-    // }
+        // console.error(error);
+        hideLoading();
+        showResponseModal(
+            'Error',
+            'User account creation request failed.',
+            `
+                Network/API failure
+            `,
+            'error'
+        );
+    }
 }
 
 /*
@@ -1566,7 +1695,17 @@ document.addEventListener(
                 )
             );
 
+        responseModal =
+            new bootstrap.Modal(
+                document.getElementById(
+                    'responseModal'
+                )
+            );
+
         loadPendingMembers();
+
+
+
     }
 );
 
@@ -1599,6 +1738,50 @@ function hideLoading()
         'loading-overlay'
     ).style.display =
         'none';
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Floating Response Modal
+|--------------------------------------------------------------------------
+*/
+function showResponseModal(
+    title,
+    message,
+    extra = '',
+    type = 'success'
+) {
+
+    const icon =
+        document.getElementById(
+            'response-icon'
+        );
+
+    icon.className =
+        `response-icon ${type}`;
+
+    icon.innerHTML =
+        type === 'success'
+            ? '<i class="bi bi-check-circle-fill"></i>'
+            : '<i class="bi bi-x-circle-fill"></i>';
+
+    document.getElementById(
+        'response-title'
+    ).innerHTML =
+        title;
+
+    document.getElementById(
+        'response-message'
+    ).innerHTML =
+        message;
+
+    document.getElementById(
+        'response-extra'
+    ).innerHTML =
+        extra;
+
+    responseModal.show();
 }
 
 /*

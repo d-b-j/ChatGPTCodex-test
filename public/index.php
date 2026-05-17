@@ -253,7 +253,7 @@ function handleMemberRequest($method, $id = null, $action = null)
                 // POST /v1/member/{id}/register
                 // ============================================================
                 if ($action === 'register') {
-                    // $controller->registerMember($id);
+                    $controller->registerMember($id);
                     exit;
                 }
 
