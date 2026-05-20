@@ -74,4 +74,24 @@ class UserService
             ]
         ];
     }
+
+    /**
+     * Get member by member ID
+     *
+     * @param string $memberId Member ID
+     * @return array|null Member data or null if not found
+     * @throws PDOException
+     */
+    public function getUserByMemberId(string $memberId): ?array
+    {
+        $memberAsUser = $this->userModel
+        ->getUserByMemberId(
+            $memberId
+        );
+
+        return $memberAsUser ?: null;
+
+    }
+
+
 }

@@ -1,0 +1,2 @@
+[2026-05-20 10:47:27] ERROR: Database connection failed: SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it | {"exception":{"errorInfo":null}}
+[2026-05-20 10:50:00] ERROR: Database connection failed: SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it | {"exception":{"errorInfo":null}}

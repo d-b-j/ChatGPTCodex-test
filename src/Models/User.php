@@ -64,6 +64,33 @@ class User
         ]);
     }
 
+
+    /**
+     * Get user by member ID
+     *
+     * @param string $memberId Member ID
+     * @return array|null User data or null if not found
+     * @throws PDOException
+     */
+    public function getUserByMemberId(string $memberId): ?array
+    {
+        $query = "
+            SELECT *
+            FROM users
+            WHERE member_id = :member_id
+        ";
+
+        $stmt = $this->db->prepare($query);
+
+        $stmt->execute([
+            ':member_id' => $memberId
+        ]);
+
+        $u = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return $u[0];
+    }
+
+
     /**
      * Check existing user
      */

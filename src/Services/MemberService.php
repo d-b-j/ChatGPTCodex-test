@@ -459,6 +459,7 @@ class MemberService
     }
 
     /**
+     * ###  NOTE MEMBERS THIS RETURNS ARRAY OF RESULTS BY THE STATUS
      * Get members by status
      */
     public function getMembersByStatus(
@@ -468,6 +469,22 @@ class MemberService
         return $this->memberModel
             ->getMembersByStatus($status);
     }
+
+
+    /**
+     * ###  NOTE A "MEMBER": THIS RETURNS THE STATUS OF A SINGLE MEMBER
+     * Get member status
+     */
+    public function getMemberStatus(
+        string $memberId
+    ): ?array {
+
+        return $this->memberModel
+            ->getStatusByMemberId(
+                $memberId
+            );
+    }
+
 
     /**
      * Get registration payment receipt
@@ -491,21 +508,21 @@ class MemberService
         string $memberId
     ): bool {
 
-        $memberNumber =
-            $this->memberModel
-                ->generateMemberNumber();
+        // $memberNumber =
+        //     $this->memberModel
+        //         ->generateMemberNumber();
 
-        $this->memberModel
-            ->assignMemberNumber(
-                $memberId,
-                $memberNumber
-            );
+        // $this->memberModel
+        //     ->assignMemberNumber(
+        //         $memberId,
+        //         $memberNumber
+        //     );
 
-        return $this->memberModel
-            ->updateMemberStatus(
-                $memberId,
-                'active'
-            );
+        // return $this->memberModel
+        //     ->updateMemberStatus(
+        //         $memberId,
+        //         'active'
+        //     );
     }
 
     /**
@@ -520,6 +537,121 @@ class MemberService
                 $memberId,
                 'rejected'
             );
+    }
+
+    /**
+     * Change member status
+     */
+    public function changeMemberStatus(
+        string $memberId,
+        string $requestedStatus
+    ): array {
+
+        $mem_status =
+            $this->memberModel
+                ->getStatusByMemberId(
+                    $memberId
+                );
+
+        if (!$mem_status) {
+            return [
+                'success' => false,
+                'message' =>
+                    'Member not found'
+            ];
+        }
+
+        $oldStatus =
+            strtolower(
+                $mem_status['status']
+            );
+
+        $requestedStatus =
+            strtolower(
+                $requestedStatus
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Only pending members can transition
+        |--------------------------------------------------------------------------
+        */
+        // if ($currentStatus !== 'pending') {
+
+        //     return [
+
+        //         'success' => false,
+
+        //         'message' =>
+        //             'Only pending members can be processed'
+        //     ];
+        // }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Allowed transitions
+        |--------------------------------------------------------------------------
+        */
+        $allowedStatuses = [
+            'pending',
+            'accepted',
+            'rejected',
+            'review',
+            'tmp-suspended',
+            'suspended',
+            'deceased',
+            'member'
+        ];
+
+        if (
+            !in_array(
+                $requestedStatus,
+                $allowedStatuses
+            )
+        ) {
+            return [
+                'success' => false,
+                'message' => 'Invalid status'
+            ];
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Accept → member
+        |--------------------------------------------------------------------------
+        */
+        // $finalStatus =
+        //     $requestedStatus === 'accept'
+        //         ? 'member'
+        //         : $requestedStatus;
+
+        $updated =
+            $this->memberModel
+                ->updateStatus(
+                    $memberId,
+                    $requestedStatus
+                );
+
+        if (!$updated) {
+            return [
+                'success' => false,
+                'message' => 'Failed to update status'
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' =>
+                'Member status updated',
+            'data' => [
+                'member_id' =>
+                    $memberId,
+                'old_status' =>
+                    $oldStatus,
+                'new_status' =>
+                    $requestedStatus
+            ]
+        ];
     }
 
 

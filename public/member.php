@@ -405,6 +405,96 @@ if (empty($memberId)) {
             }
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Page Lock Overlay
+        |--------------------------------------------------------------------------
+        */
+        .page-lock-overlay {
+
+            position: fixed;
+
+            top: 0;
+            left: 0;
+
+            width: 100%;
+            height: 100%;
+
+            background:
+                rgba(255,255,255,0.88);
+
+            backdrop-filter:
+                blur(6px);
+
+            z-index: 1040;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Status Modal
+        |--------------------------------------------------------------------------
+        */
+        .status-icon {
+
+            width: 100px;
+            height: 100px;
+
+            border-radius: 50%;
+
+            margin: auto;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 42px;
+        }
+
+        .status-icon.pending {
+
+            background:
+                rgba(255,193,7,0.12);
+
+            color:
+                #ffc107;
+        }
+
+        .status-icon.reject {
+
+            background:
+                rgba(220,53,69,0.12);
+
+            color:
+                #dc3545;
+        }
+
+        .status-icon.accept {
+
+            background:
+                rgba(25,135,84,0.12);
+
+            color:
+                #198754;
+        }
+
+        .status-icon.review {
+
+            background:
+                rgba(13,110,253,0.12);
+
+            color:
+                #0d6efd;
+        }
+
+        .status-message {
+
+            font-size: 15px;
+
+            line-height: 1.8;
+        }
+
     </style>
 
 </head>
@@ -485,11 +575,11 @@ if (empty($memberId)) {
 
                 <div class="profile-body">
 
-                    <img
+                    <!-- <img
                         id="profile-photo"
                         class="profile-photo"
                         src="https://via.placeholder.com/130"
-                    >
+                    > -->
 
                     <div
                         class="member-name"
@@ -690,10 +780,95 @@ if (empty($memberId)) {
 
 </div>
 
+
+
+<!-- ===================================================== -->
+<!-- MEMBER STATUS MODAL -->
+<!-- ===================================================== -->
+
+<div
+    class="modal fade"
+    id="memberStatusModal"
+    tabindex="-1"
+    data-bs-backdrop="static"
+    data-bs-keyboard="false"
+>
+
+    <div
+        class="
+            modal-dialog
+            modal-dialog-centered
+        "
+    >
+
+        <div class="modal-content">
+
+            <div class="modal-body p-5">
+
+                <div class="text-center">
+
+                    <!-- ICON -->
+                    <div
+                        id="status-icon"
+                        class="status-icon pending"
+                    >
+
+                        <i class="bi bi-hourglass-split"></i>
+
+                    </div>
+
+                    <!-- TITLE -->
+                    <h3
+                        id="status-title"
+                        class="mt-4"
+                    >
+                        Pending Review
+                    </h3>
+
+                    <!-- MESSAGE -->
+                    <div
+                        id="status-message"
+                        class="
+                            text-muted
+                            mt-3
+                            status-message
+                        "
+                    >
+                        Please wait...
+                    </div>
+
+                    <!-- ACTION -->
+                    <div
+                        id="status-action"
+                        class="mt-4"
+                    ></div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================================== -->
+<!-- PAGE LOCK OVERLAY -->
+<!-- ===================================================== -->
+
+<div
+    id="page-lock-overlay"
+    class="page-lock-overlay d-none"
+></div>
+
+
+
 <script>
 
-const memberId =
-    "<?php echo htmlspecialchars($memberId); ?>";
+let memberStatusModal = null;
+
+const memberId = "<?php echo htmlspecialchars($memberId); ?>";
 
 /*
 |--------------------------------------------------------------------------
@@ -704,11 +879,21 @@ document.addEventListener(
     'DOMContentLoaded',
     async function () {
 
+        checkMemberStatus(memberId);
+
         await loadMember();
 
         await loadPaymentStatus();
 
         await loadContributions();
+
+        memberStatusModal =
+            new bootstrap.Modal(
+                document.getElementById(
+                    'memberStatusModal'
+                )
+            );
+
     }
 );
 
@@ -1023,7 +1208,263 @@ async function loadContributions()
     }
 }
 
+
+/*
+|--------------------------------------------------------------------------
+| Check Member Status
+|--------------------------------------------------------------------------
+*/
+async function checkMemberStatus(
+    memberId
+) {
+
+    try {
+
+        const response =
+            await fetch(
+                `/v1/member/${memberId}/status`
+            );
+
+        const result =
+            await response.json();
+
+        // if (
+        //     !result.success ||
+        //     !result.data
+        // ) {
+
+        //     return;
+        // }
+
+        const member =
+            result.data;
+
+        const status =
+            (
+                member.status || ''
+            ).toLowerCase();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Member Active
+        |--------------------------------------------------------------------------
+        */
+        if ( status === 'member' ) {
+            return;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Lock Page
+        |--------------------------------------------------------------------------
+        */
+        document
+            .getElementById(
+                'page-lock-overlay'
+            )
+            .classList
+            .remove('d-none');
+
+        const icon =
+            document.getElementById(
+                'status-icon'
+            );
+
+        const title =
+            document.getElementById(
+                'status-title'
+            );
+
+        const message =
+            document.getElementById(
+                'status-message'
+            );
+
+        const action =
+            document.getElementById(
+                'status-action'
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | PENDING
+        |--------------------------------------------------------------------------
+        */
+        if (status === 'pending') {
+
+            icon.className =
+                'status-icon pending';
+
+            icon.innerHTML =
+                '<i class="bi bi-hourglass-split"></i>';
+
+            title.innerHTML =
+                'Membership Pending';
+
+            message.innerHTML = `
+                Your membership request
+                is submitted and still
+                pending review.
+                <br><br>
+                Wait for further instructions.
+            `;
+
+            action.innerHTML = '';
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | REJECTED
+        |--------------------------------------------------------------------------
+        */
+        else if (
+            status === 'rejected'
+        ) {
+
+            icon.className =
+                'status-icon reject';
+
+            icon.innerHTML =
+                '<i class="bi bi-x-circle-fill"></i>';
+
+            title.innerHTML =
+                'Application Rejected';
+
+            message.innerHTML = `
+                Your application has been rejected.
+                <br><br>
+
+                <strong>Reason:</strong>
+                <br>
+
+                ${
+                    member.review_message ||
+                    'No reason provided'
+                }
+            `;
+
+            action.innerHTML = '';
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | ACCEPTED
+        |--------------------------------------------------------------------------
+        */
+        else if (
+            status === 'accepted' || status === 'member-first-time'
+        ) {
+
+            icon.className =
+                'status-icon accept';
+
+            icon.innerHTML =
+                '<i class="bi bi-check-circle-fill"></i>';
+
+            title.innerHTML =
+                'Membership Accepted';
+
+            message.innerHTML = `
+                <strong> Welcome !</strong>
+                <br><br>
+                Your application has been accepted.
+                <br><br>
+
+                Username:
+                <strong>
+                    ${member.member_no}
+                </strong>
+
+                <br>
+
+                Password:
+                <strong>
+                    123456
+                </strong>
+            `;
+
+            action.innerHTML = `
+
+                <a
+                    href="/start.php"
+                    class="
+                        btn
+                        btn-primary-theme
+                    "
+                >
+                    Login Now
+                </a>
+            `;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | REVIEW
+        |--------------------------------------------------------------------------
+        */
+        else if (
+            status === 'review'
+        ) {
+
+            icon.className =
+                'status-icon review';
+
+            icon.innerHTML =
+                '<i class="bi bi-exclamation-circle-fill"></i>';
+
+            title.innerHTML =
+                'Application Under Review';
+
+            message.innerHTML = `
+                Your application requires
+                additional information.
+                <br><br>
+
+                <strong>
+                    Required:
+                </strong>
+
+                <br>
+
+                ${
+                    member.review_message ||
+                    'Please complete missing fields.'
+                }
+            `;
+
+            action.innerHTML = `
+
+                <a
+                    href="/member-edit-form.php?id=${memberId}"
+                    class="
+                        btn
+                        btn-primary-theme
+                    "
+                >
+                    Complete Form
+                </a>
+            `;
+        }
+
+        // memberStatusModal.show();
+        document.getElementById('memberStatusModal').classList.remove('d-none'); 
+        document.getElementById('memberStatusModal').classList.remove('fade');    
+        document.getElementById ('memberStatusModal').style.display = 'flex';  
+                 
+            
+
+    } catch (error) {
+
+        console.error(
+            'Status check failed',
+            error
+        );
+    }
+}
+
 </script>
+<!-- Bootstrap Bundle JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

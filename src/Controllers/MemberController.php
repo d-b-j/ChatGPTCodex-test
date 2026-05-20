@@ -25,6 +25,7 @@ class MemberController
      */
     protected MemberService $memberService;
     protected UserService $userService;
+    // protected $payload;
 
     /**
      * Constructor
@@ -33,6 +34,15 @@ class MemberController
     {
         $this->memberService = new MemberService();
         $this->userService = new UserService();
+
+        // $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+
+        // if (str_contains($contentType, 'multipart/form-data')) {
+        //     $this->payload = $_POST;
+        // } else {
+        //     $this->payload = json_decode(file_get_contents('php://input'), true) ?? [];
+        // }
+
     }
 
     /**
@@ -46,22 +56,25 @@ class MemberController
         try {
 
             $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+            $memData = null;
 
             if (str_contains($contentType, 'multipart/form-data')) {
-                $payload = $_POST;
+                $memData = $_POST;
             } else {
-                $payload = json_decode(file_get_contents('php://input'), true) ?? [];
+                $memData = json_decode(file_get_contents('php://input'), true) ?? [];
             }
 
+
+
             // Validate JSON input
-            if (empty($payload)) {
+            if (empty($memData)) {
                 Response::error('Request body is empty', 400);
                 return;
             }       
 
             $memberNumber = null;
-            if( isset($payload['batch_year'])  ) {
-                $alBatchYear = $payload['batch_year'];
+            if( isset($memData['batch_year'])  ) {
+                $alBatchYear = $memData['batch_year'];
                 $memberNumber = $this->generateMemberNumber($alBatchYear);
             }
 
@@ -737,7 +750,8 @@ class MemberController
 
 
     /**
-     * GET /v1/member/status/{status}
+     * ###  NOTE: "MEMBER(S)" - THIS RETURNS LIST OF members BY THE STATUS
+     * GET /v1/members/status/{status}
      */
     public function getMembersByStatus(
         string $status
@@ -777,6 +791,81 @@ class MemberController
     }
 
 
+
+
+    /**
+     * ###  NOTE A "MEMBER": THIS RETURNS THE STATUS OF A SINGLE MEMBER
+     * GET /v1/member/{id}/status
+     */
+    public function memberStatus(
+        string $memberId
+    ): void {
+
+        try {
+
+            $member =
+                $this->memberService
+                    ->getMemberStatus(
+                        $memberId
+                    );
+
+            if (!$member) {
+
+                http_response_code(404);
+
+                echo json_encode([
+
+                    'success' => false,
+
+                    'message' =>
+                        'Member not found'
+                ]);
+
+                return;
+            }
+
+            $user = null;
+            if( $member['status'] === 'member' ) {
+
+                $user = $this->userService
+                    ->getUserByMemberId(
+                        $member['member_id']
+                    );
+
+                    if ( empty($user['last_login_at']) ) {
+                        $member['status'] = 'member-first-time';
+                    }
+            }
+
+            echo json_encode([
+
+                'success' => true,
+
+                'message' =>
+                    'Status retrieved',
+
+                'data' => $member,
+
+                'user' => $user,
+
+                'timestamp' =>
+                    date('c')
+            ]);
+
+        } catch (\Throwable $e) {
+
+            http_response_code(500);
+
+            echo json_encode([
+
+                'success' => false,
+
+                'message' =>
+                    $e->getMessage()
+            ]);
+        }
+    }
+
     /**
      * GET /v1/member/{id}/registration-payment-receipt
      */
@@ -794,11 +883,10 @@ class MemberController
 
             if (!$attachment) {
 
-                http_response_code(404);
+                // http_response_code(404);
 
                 echo json_encode([
                     'success' => false,
-
                     'message' =>
                         'Missing Registration Fee Payment Record'
                 ]);
@@ -853,16 +941,26 @@ class MemberController
                         $member
                     );
 
-            echo json_encode([
-                'success' => $success,
-                'data' => $success,
-                'message' =>
-                    $success
-                        ? 'Member registered successfully'
-                        : 'Failed to register member',
-                'timestamp' =>
-                    date('c')
-            ]);
+            if ($success){
+                $this->memberService
+                    ->changeMemberStatus(
+                        $memberId,
+                        'accepted'
+                    );
+                // Get new user details and return in response
+            }
+            // on fail Delete User record
+
+            // echo json_encode([
+            //     'success' => $success,
+            //     'data' => $member,
+            //     'message' =>
+            //         $success
+            //             ? 'Accepted, Login using, username - ' . $member['member_no'] . 'and password: 123456'
+            //             : 'Failed to register member',
+            //     'timestamp' =>
+            //         date('c')
+            // ]);
 
         } catch (\Throwable $e) {
 
@@ -942,7 +1040,76 @@ class MemberController
     }
 
 
+    /**
+     * POST /v1/member/{id}/status
+     */
+    public function updateMemberStatus(
+        string $memberId
+    ): void {
 
+        $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+        $payload = null;
+        if (str_contains($contentType, 'multipart/form-data')) {
+        $payload = $_POST;
+        } else {
+        $payload = $this->getJsonInput();
+        }
+
+        if (empty($payload)) {
+            Response::error('Request body is empty', 400);
+            return;
+        }
+
+        try {
+
+            $status = null;
+            if( isset($payload['status-to'])  ) {
+                $status = $payload['status-to'];
+            }
+            switch ($status) {
+                case 'accepted':
+                    $this->registerMember($memberId);
+                    break;
+                case 'rejected':
+                    break;
+                case 'pending':
+                    break;
+                default:
+                    http_response_code(400);
+            }
+
+            $result = 
+                $this->memberService
+                ->changeMemberStatus(
+                    $memberId,
+                    $status
+                );
+            // Get new user details and return in response
+            $newStatus =
+                $this->memberService
+                ->getMemberStatus(
+                    $memberId
+                );
+                
+            echo json_encode([
+                'success' =>
+                    $result['success'],
+                'message' =>
+                    $result['message'],
+                'data' => $newStatus,
+                'timestamp' =>
+                    date('c')
+            ]);
+
+        } catch (\Throwable $e) {
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'message' =>
+                    $e->getMessage()
+            ]);
+        }
+    }
 ///////////// FILE UPLOAD
 
 

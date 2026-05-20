@@ -1083,6 +1083,7 @@ let currentMember = null;
 let pendingRequestsModal = null;
 let memberViewerModal = null;
 let responseModal = null;
+let moderationProcessing = false;
 /*
 |--------------------------------------------------------------------------
 | Load Pending Members
@@ -1369,30 +1370,78 @@ function renderMemberViewer(member)
 
         </div>
 
-        <div class="d-flex gap-3 mt-4">
+        <div
+            class="
+                d-flex
+                flex-wrap
+                gap-2
+                mt-4
+            "
+        >
 
             <button
-                class="btn btn-success flex-fill"
-                onclick="registerMember()"
+                id="register-btn"
+                class="
+                    btn
+                    btn-success
+                "
+                onclick="
+                    registerMember(
+                        '${memberId}'
+                    )
+                "
             >
                 <i class="bi bi-check-circle"></i>
+
                 Register
             </button>
 
             <button
-                class="btn btn-warning flex-fill"
-                onclick="messageMember()"
+                class="
+                    btn
+                    btn-warning
+                "
+                onclick="
+                    reviewMember(
+                        '${memberId}'
+                    )
+                "
             >
-                <i class="bi bi-chat-dots"></i>
-                Message
+                <i class="bi bi-search"></i>
+
+                Review
             </button>
 
             <button
-                class="btn btn-danger flex-fill"
-                onclick="rejectMember()"
+                class="
+                    btn
+                    btn-danger
+                "
+                onclick="
+                    rejectMember(
+                        '${memberId}'
+                    )
+                "
             >
                 <i class="bi bi-x-circle"></i>
+
                 Reject
+            </button>
+
+            <button
+                class="
+                    btn
+                    btn-dark
+                "
+                onclick="
+                    messageMember(
+                        '${memberId}'
+                    )
+                "
+            >
+                <i class="bi bi-chat-dots"></i>
+
+                Message
             </button>
 
         </div>
@@ -1415,7 +1464,8 @@ async function loadRegFeeReceipt(memberId)
             await response.blob();
         const imageUrl =
             URL.createObjectURL(blob);
-
+            // console.log(response);
+            // console.log(blob);
         if (response.ok === false) {
             return;
         }    
@@ -1438,85 +1488,167 @@ async function loadRegFeeReceipt(memberId)
 
 /*
 |--------------------------------------------------------------------------
-| Register
+| Register Member
 |--------------------------------------------------------------------------
 */
-async function registerMember()
-{
-    if (!currentMember) {
+async function registerMember(
+    memberId
+) {
+
+    if (moderationProcessing) {
         return;
     }
 
-    const confirmed =
-        confirm(
-            'Approve and register this member?'
-        );
-
-    if (!confirmed) {
-        return;
-    }
+    moderationProcessing = true;
 
     try {
 
         showLoading();
 
-        const response =
+        /*
+        |--------------------------------------------------------------------------
+        | Create User
+        |--------------------------------------------------------------------------
+        */
+        const userResponse =
             await fetch(
-                `/v1/member/${currentMember.member_id}/register`,
+                '/v1/user/create',
                 {
-                    method: 'POST'
+
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json'
+                    },
+
+                    body: JSON.stringify({
+
+                        member_id:
+                            memberId
+                    })
                 }
             );
 
-        const result =
-            await response.json();
+        const userResult =
+            await userResponse.json();
 
-        hideLoading();
+        if (!userResult.success) {
 
-        if (!result.success) {
+            hideLoading();
 
-            alert(
-                result.message ||
-                'Registration failed'
+            showResponseModal(
+
+                'Registration Failed',
+
+                userResult.message,
+
+                '',
+
+                'error'
             );
+
+            moderationProcessing = false;
 
             return;
         }
 
-        alert(
-            'Member registered successfully'
+        /*
+        |--------------------------------------------------------------------------
+        | Update Status
+        |--------------------------------------------------------------------------
+        */
+        const statusResult =
+            await updateMemberStatus(
+
+                memberId,
+                'accept'
+            );
+
+        hideLoading();
+
+        if (!statusResult.success) {
+
+            showResponseModal(
+
+                'Status Update Failed',
+
+                statusResult.message,
+
+                '',
+
+                'error'
+            );
+
+            moderationProcessing = false;
+
+            return;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Success
+        |--------------------------------------------------------------------------
+        */
+        showResponseModal(
+
+            'Member Registered',
+
+            'Membership approved successfully.',
+
+            `
+
+                <div class="mb-2">
+
+                    <strong>
+                        Username:
+                    </strong>
+
+                    ${userResult.data.username}
+
+                </div>
+
+                <div>
+
+                    <strong>
+                        Password:
+                    </strong>
+
+                    ${userResult.data.password}
+
+                </div>
+
+            `,
+
+            'success'
         );
 
-        document.getElementById(
-            'member-viewer'
-        ).innerHTML = `
-            <div class="empty-state">
-                <i
-                    class="bi bi-check-circle"
-                    style="font-size:48px;"
-                ></i>
-
-                <div class="mt-3">
-                    Member approved successfully
-                </div>
-            </div>
-        `;
-
+        /*
+        |--------------------------------------------------------------------------
+        | Refresh UI
+        |--------------------------------------------------------------------------
+        */
         loadPendingMembers();
+
+        memberViewerModal.hide();
 
     } catch (error) {
 
-        // console.error(error);
         hideLoading();
+
         showResponseModal(
-            'Error',
-            'User account creation request failed.',
-            `
-                Network/API failure
-            `,
+
+            'Request Failed',
+
+            'Unexpected system error',
+
+            error.message,
+
             'error'
         );
     }
+
+    moderationProcessing = false;
 }
 
 /*
@@ -1593,82 +1725,134 @@ async function messageMember()
 
 /*
 |--------------------------------------------------------------------------
-| Reject
+| Reject Member
 |--------------------------------------------------------------------------
 */
-async function rejectMember()
-{
-    // if (!currentMember) {
-    //     return;
-    // }
+async function rejectMember(
+    memberId
+) {
 
-    // const confirmed =
-    //     confirm(
-    //         'Reject this membership request?'
-    //     );
+    const rejectReason =
+        prompt(
+            'Enter rejection reason'
+        );
 
-    // if (!confirmed) {
-    //     return;
-    // }
+    if (
+        rejectReason === null
+    ) {
 
-    // try {
+        return;
+    }
 
-    //     showLoading();
+    try {
 
-    //     const response =
-    //         await fetch(
-    //             `/v1/member/${currentMember.id}/reject`,
-    //             {
-    //                 method: 'POST'
-    //             }
-    //         );
+        showLoading();
 
-    //     const result =
-    //         await response.json();
+        const result =
+            await updateMemberStatus(
 
-    //     hideLoading();
+                memberId,
 
-    //     if (!result.success) {
+                'reject',
 
-    //         alert(
-    //             result.message ||
-    //             'Reject failed'
-    //         );
+                rejectReason
+            );
 
-    //         return;
-    //     }
+        hideLoading();
 
-    //     alert(
-    //         'Member rejected successfully'
-    //     );
+        if (!result.success) {
 
-    //     document.getElementById(
-    //         'member-viewer'
-    //     ).innerHTML = `
-    //         <div class="empty-state">
-    //             <i
-    //                 class="bi bi-x-circle"
-    //                 style="font-size:48px;"
-    //             ></i>
+            showResponseModal(
 
-    //             <div class="mt-3">
-    //                 Membership rejected
-    //             </div>
-    //         </div>
-    //     `;
+                'Reject Failed',
 
-    //     loadPendingMembers();
+                result.message,
 
-    // } catch (error) {
+                '',
 
-    //     console.error(error);
+                'error'
+            );
 
-    //     hideLoading();
+            return;
+        }
 
-    //     alert(
-    //         'Network error'
-    //     );
-    // }
+        showResponseModal(
+
+            'Application Rejected',
+
+            'Member application rejected successfully.',
+
+            `
+
+                <strong>
+                    Reason:
+                </strong>
+
+                <br>
+
+                ${rejectReason}
+
+            `,
+
+            'success'
+        );
+
+        loadPendingMembers();
+
+        memberViewerModal.hide();
+
+    } catch (error) {
+
+        hideLoading();
+
+        showResponseModal(
+
+            'Request Failed',
+
+            error.message,
+
+            '',
+
+            'error'
+        );
+    }
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Update Member Status
+|--------------------------------------------------------------------------
+*/
+async function updateMemberStatus(
+    memberId,
+    status,
+    message = ''
+) {
+
+    const response =
+        await fetch(
+
+            `/v1/member/${memberId}/status`,
+
+            {
+
+                method: 'POST',
+
+                headers: {
+                    'Content-Type':
+                        'application/json'
+                },
+
+                body: JSON.stringify({
+
+                    status,
+                    message
+                })
+            }
+        );
+
+    return await response.json();
 }
 
 /*

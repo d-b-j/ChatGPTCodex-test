@@ -807,6 +807,37 @@ class Member
         ]);
     }
 
+
+/**
+ * Update member status
+ */
+public function updateStatus(
+    string $memberId,
+    string $status
+): bool {
+
+    $query = "
+        UPDATE members
+        SET
+            status = :status,
+            updated_at = NOW()
+        WHERE member_id = :member_id
+    ";
+
+    $stmt =
+        $this->db->prepare(
+            $query
+        );
+
+    return $stmt->execute([
+        ':status' =>
+            $status,
+        ':member_id' =>
+            $memberId
+    ]);
+}
+
+
     /**
      * Generate member number
      */
@@ -834,21 +865,50 @@ class Member
         string $memberNumber
     ): bool {
 
-        $query = "
-            UPDATE members
-            SET member_no = :member_no
-            WHERE member_id = :member_id
-        ";
+        // $query = "
+        //     UPDATE members
+        //     SET member_no = :member_no
+        //     WHERE member_id = :member_id
+        // ";
 
-        $stmt =
-            $this->connection->prepare($query);
+        // $stmt =
+        //     $this->connection->prepare($query);
 
-        return $stmt->execute([
-            ':member_no' => $memberNumber,
-            ':member_id' => $memberId
-        ]);
+        // return $stmt->execute([
+        //     ':member_no' => $memberNumber,
+        //     ':member_id' => $memberId
+        // ]);
     }
 
+/**
+ * Get member status
+ */
+public function getStatusByMemberId(
+    string $memberId
+): ?array {
 
+    $query = "
+        SELECT *
+        FROM members
+        WHERE member_id = :member_id
+        LIMIT 1
+    ";
+
+    $stmt =
+        $this->db->prepare(
+            $query
+        );
+
+    $stmt->execute([
+        ':member_id' => $memberId
+    ]);
+
+    $result =
+        $stmt->fetch(
+            \PDO::FETCH_ASSOC
+        );
+
+    return $result ?: null;
+}
 
 }

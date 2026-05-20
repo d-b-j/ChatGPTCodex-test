@@ -184,7 +184,9 @@ function routeRequest($method, $path)
         case 'member':
             handleMemberRequest($method, $id, $action);
             break;
-        
+        case 'members':
+            handleGroupsOfMembersRequest($method, $id, $action);
+            break;
         case 'health':
             // Health check endpoint
             \App\Helpers\Response::success(['status' => 'OK'], 'API is healthy');
@@ -258,13 +260,14 @@ function handleMemberRequest($method, $id = null, $action = null)
                 }
 
                 // ============================================================
-                // POST /v1/member/{id}/reject
+                // POST /v1/member/{id}/update-status
                 // ============================================================
-                if ($action === 'reject') {
-                    // $controller->rejectMember($id);
+                if ($action === 'update-status') {
+                    $controller->updateMemberStatus($id);
                     exit;
                 }
 
+                
                 // ============================================================
                 // POST /v1/member/{id}/message
                 // ============================================================
@@ -273,8 +276,10 @@ function handleMemberRequest($method, $id = null, $action = null)
                     exit;
                 }
 
-                // \App\Helpers\Response::json([
+
+                //                 \App\Helpers\Response::json([
                 //     'success' => true,
+                //     'data' => $contentType,
                 //     'id' => $id,
                 //     'action' => $action
                 // ]);
@@ -308,11 +313,11 @@ function handleMemberRequest($method, $id = null, $action = null)
                 }
 
                 // ============================================================
-                // GET /v1/member/status/{status}
+                // GET /v1/member/{id}/status
                 // ============================================================
-                if ($id === 'status') {
-                    $controller->getMembersByStatus(
-                        $action
+                if ($action === 'status') {
+                    $controller->memberStatus(
+                        $id
                     );
                     exit;
                 }
@@ -324,12 +329,6 @@ function handleMemberRequest($method, $id = null, $action = null)
                     $controller->registrationPaymentReceipt($id);
                     return;
                 }
-
-                // \App\Helpers\Response::json([
-                //     'success' => true,
-                //     'id' => $id,
-                //     'action' => $action
-                // ]);
                 
                 /*
                 |--------------------------------------------------------------------------
@@ -353,6 +352,12 @@ function handleMemberRequest($method, $id = null, $action = null)
                 }
 
                 $controller->retrieve($id);
+                // \App\Helpers\Response::json([
+                //     'success' => true,
+                //     'id' => $id,
+                //     'action' => $action
+                // ]);
+
                 break;
 
             case 'PUT':
@@ -381,6 +386,53 @@ function handleMemberRequest($method, $id = null, $action = null)
         \App\Helpers\Response::error($e->getMessage(), 500);
     }
 }
+
+/**
+ * Handle members - bulk related requests.
+ * 
+ * @param string $method HTTP method
+ * @param string|null $id Member ID
+ * @return void
+ */
+function handleGroupsOfMembersRequest($method, $id = null, $action = null)
+{
+    // Include necessary files
+    require_once SRC_PATH . '/Config/Database.php';
+    require_once SRC_PATH . '/Controllers/MemberController.php';
+
+    $controller = new \App\Controllers\MemberController();
+
+    try {
+        switch ($method) {
+            case 'GET':
+                // ============================================================
+                // GET /v1/members/status/{status}
+                // ============================================================
+                if ($id === 'status') {
+                    $controller->getMembersByStatus(
+                        $action
+                    );
+                    exit;
+                }                
+                break;
+            case 'POST':  
+                break;  
+            case 'PUT':
+                break; 
+            case 'PATCH': 
+                break; 
+            case 'DELETE':
+                break;           
+            default:
+                \App\Helpers\Response::error('Method not allowed', 405);
+                break;
+        }
+    } catch (Exception $e) {
+        \App\Helpers\Logger::error($e->getMessage(), ['exception' => $e]);
+        \App\Helpers\Response::error($e->getMessage(), 500);
+    }                
+}
+
 
 /**
  * Handle QR code-related requests

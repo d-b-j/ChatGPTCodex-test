@@ -1,0 +1,2 @@
+[2026-05-19 07:57:55] ERROR: Database connection failed: SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it | {"exception":{"errorInfo":null}}
+[2026-05-19 11:12:12] ERROR: Invalid JSON: Syntax error | {"exception":{}}
